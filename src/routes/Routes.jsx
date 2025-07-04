@@ -7,9 +7,12 @@ import Dashboard from "../pages/Dashboard";
 import Courses from "../pages/courses/Courses";
 import PrivateRoute from "./PrivageRoute";
 import CoursesTopic from "../pages/coursesTopic/CoursesTopic";
-import CoursesDetails from "../pages/coursesDeatails/CoursesDetails";
-import TopicWithTeachers from "../pages/topicWithTeachers/TopicWithTeachers";
 import Contents from "../pages/contents/Contents";
+import CourseDetails from "../pages/courseDetails/CourseDetails";
+import SchoolCourses from "../pages/schoolCourses/schoolCourses";
+import SingleSchoolCourse from "../pages/singleSchoolCourse/SingleSchoolCourse";
+import Orders from "../pages/orders/Orders";
+import OrdersDetails from "../pages/orders/OrdersDetails";
 
 export const router = createBrowserRouter([
   {
@@ -38,19 +41,32 @@ export const router = createBrowserRouter([
       },
       {
         path: "/courses/:courseId/:topicId",
-        element: <TopicWithTeachers />,
+        element: <CourseDetails />,
       },
       {
         path: "/courses/:courseId/:topicId/:courseDetailsID",
         element: <Contents />,
       },
       {
-        path: "/courses-details",
-        element: <CoursesDetails />,
+        path: "/school-courses",
+        element: <SchoolCourses />,
       },
+      {
+        path: "/school-courses/:schoolCoursesID",
+        element: <SingleSchoolCourse />,
+      },
+
       {
         path: "/users",
         element: <Users />,
+      },
+      {
+        path: "/orders",
+        element: <Orders />,
+      },
+      {
+        path: "/orders/:orderId",
+        element: <OrdersDetails />,
       },
     ],
   },

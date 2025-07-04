@@ -31,8 +31,8 @@ import CourseDetailsTable from "./CourseDetailsTable";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
-function TopicWithTeachers() {
-  const { topicId, courseId } = useParams();
+function CourseDetails() {
+  const { topicId } = useParams();
   const { topicsWithTeacher, isLoading, isError, error, refetch } =
     useSingleTopicsWithTeacher(topicId);
 
@@ -175,10 +175,9 @@ function TopicWithTeachers() {
           </Col>
         </Row>
       </Card>
-
       <CourseDetailsTable refetch={refetch} teachers={topicData?.teachers} />
     </div>
   );
 }
 
-export default TopicWithTeachers;
+export default CourseDetails;

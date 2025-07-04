@@ -122,7 +122,7 @@ function Contents() {
           }
           key="1"
         >
-          <Packages packagesData={data?.packages} refetch={refetch} />
+          <Packages packagesData={data?.packages || []} refetch={refetch} />
         </TabPane>
 
         {/* Semester Tab */}

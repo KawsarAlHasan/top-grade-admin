@@ -53,7 +53,7 @@ const Navbar = ({ showDrawer }) => {
   const headerItems = [
     {
       label: (
-        <Badge count={10} className="mt-[24px]">
+        <Badge count={0} className="mt-[24px]">
           <BellOutlined
             style={{ fontSize: "24px", cursor: "pointer" }}
             onClick={() => setDrawerVisible(true)}

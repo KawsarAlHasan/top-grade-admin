@@ -20,27 +20,64 @@ import {
 
 import { Link } from "react-router-dom";
 import AddPackage from "./AddPackage";
+import { API } from "../../../api/api";
+import EditPackage from "./EditPackage";
 
 const { Search } = Input;
 const { confirm } = Modal;
 
-function Packages(packagesData, refetch) {
+function Packages({ packagesData = [], refetch }) {
   const [searchText, setSearchText] = useState("");
-  const [deleteLoading, setDeleteLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [preValue, setPreValue] = useState(null);
 
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [editingPackage, setEditingPackage] = useState(null);
 
-  const filteredData = packagesData?.packagesData?.filter((item) =>
+  const handleEdit = (record) => {
+    setEditingPackage(record);
+    setIsEditModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditingPackage(null);
+  };
+
+  const showDeleteConfirm = (pID) => {
+    confirm({
+      title: "Are you sure you want to delete this Package?",
+      icon: <ExclamationCircleOutlined />,
+      content: "This action cannot be undone.",
+      okText: "Yes, delete it",
+      okType: "danger",
+      cancelText: "No, cancel",
+      onOk() {
+        return handleDelete(pID);
+      },
+    });
+  };
+
+  const handleDelete = async (pID) => {
+    try {
+      setIsDeleting(true);
+      await API.delete(`/content/package/delete/${pID}`);
+      notification.success({
+        message: "Package deleted successfully",
+      });
+      refetch();
+    } catch (error) {
+      notification.error({
+        message: "Failed to Delete Package",
+        description: error.message || "Please try again later",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const filteredData = packagesData?.filter((item) =>
     item?.title?.toLowerCase().includes(searchText.toLowerCase())
   );
-
-  // course_details_id;
-  // duration;
-  // price;
-  // title;
 
   const data = filteredData.map((item, index) => ({
     key: index,
@@ -102,8 +139,9 @@ function Packages(packagesData, refetch) {
           danger
           size="small"
           icon={<DeleteOutlined />}
-          loading={deleteLoading}
           onClick={() => showDeleteConfirm(record.id)}
+          loading={isDeleting}
+          disabled={isDeleting}
         >
           Delete
         </Button>
@@ -136,21 +174,12 @@ function Packages(packagesData, refetch) {
         />
       )}
 
-      {/* <EditCourses
-        preValue={preValue}
+      <EditPackage
         isOpen={isEditModalOpen}
         onClose={handleModalClose}
+        packageData={editingPackage}
         refetch={refetch}
       />
-
-      <StatusUpdateModal
-        visible={isStatusModalOpen}
-        onClose={() => setIsStatusModalOpen(false)}
-        currentStatus={selectedCourse?.status}
-        onUpdate={handleStatusUpdate}
-        statusOptions={["Active", "Deactivated"]}
-        title="Update Course Status"
-      /> */}
     </div>
   );
 }

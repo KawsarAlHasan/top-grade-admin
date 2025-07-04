@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const API = axios.create({
-  // baseURL: "https://education-management-backend-8jm1.onrender.com/api/v1",
-  baseURL: "http://localhost:3001/api/v1",
+  baseURL: "https://education-management-backend-8jm1.onrender.com/api/v1",
+  // baseURL: "http://localhost:3001/api/v1",
 });
 
 API.interceptors.request.use((config) => {
@@ -39,42 +39,6 @@ export const useAdminProfile = () => {
 export const signOutAdmin = () => {
   localStorage.removeItem("token");
   window.location.href = "/login";
-};
-
-export const useGlobalData = (table, { status, page = 1, limit = 10 }) => {
-  const fetchGlobalData = async () => {
-    const queryParams = new URLSearchParams({
-      page,
-      limit,
-      ...(status && { status }),
-    });
-
-    const res = await API.get(`/global/${table}`, {
-      params: { page, limit, status },
-    });
-    return res.data;
-  };
-
-  const {
-    data = {},
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["globalData", table, status, page, limit],
-    queryFn: fetchGlobalData,
-    keepPreviousData: true,
-  });
-
-  return {
-    globalData: data.data || [],
-    pagination: data.pagination || {},
-    isLoading,
-    isError,
-    error,
-    refetch,
-  };
 };
 
 // get all user
@@ -209,11 +173,137 @@ export const useCourseContentsByID = (course_details_id) => {
   return { contentsWithDetailsByID, isLoading, isError, error, refetch };
 };
 
+// school courses start
+// get courses all
+export const useAllSchoolCourses = () => {
+  const getAllSchoolCourses = async () => {
+    const response = await API.get("/school-courses/all");
+    return response.data.data;
+  };
+
+  const {
+    data: allSchoolCourses = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["allSchoolCourses"],
+    queryFn: getAllSchoolCourses,
+  });
+
+  return { allSchoolCourses, isLoading, isError, error, refetch };
+};
+
+// get single School Courses
+export const useSingleSchoolCourse = (schoolCoursesID) => {
+  const getSingleSchoolCourse = async () => {
+    const response = await API.get(`/school-courses/${schoolCoursesID}`);
+    return response.data;
+  };
+
+  const {
+    data: singleSCDetail = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["singleSCDetail", schoolCoursesID],
+    queryFn: getSingleSchoolCourse,
+  });
+
+  return { singleSCDetail, isLoading, isError, error, refetch };
+};
+
+// get all Orders
+export const useOrders = ({ page = 1, limit = 50, status } = {}) => {
+  const getOrders = async () => {
+    const response = await API.get("/order/all", {
+      params: { page, limit, status },
+    });
+    return response.data;
+  };
+
+  const {
+    data: response = {},
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["orders", page, limit, status],
+    queryFn: getOrders,
+    keepPreviousData: true,
+  });
+
+  const { data: orders = [], pagination = {} } = response;
+
+  return { orders, pagination, isLoading, isError, error, refetch };
+};
+
+// get single order
+export const useSingleOrder = (orderId) => {
+  const getSingleOrder = async () => {
+    const response = await API.get(`/order/${orderId}`);
+    return response.data;
+  };
+
+  const {
+    data: singleOrder = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["singleOrder", orderId],
+    queryFn: getSingleOrder,
+  });
+
+  return { singleOrder, isLoading, isError, error, refetch };
+};
+
 // not use
 // not use
 // not use
 // not use
 // not use
+
+export const useGlobalData = (table, { status, page = 1, limit = 10 }) => {
+  const fetchGlobalData = async () => {
+    const queryParams = new URLSearchParams({
+      page,
+      limit,
+      ...(status && { status }),
+    });
+
+    const res = await API.get(`/global/${table}`, {
+      params: { page, limit, status },
+    });
+    return res.data;
+  };
+
+  const {
+    data = {},
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["globalData", table, status, page, limit],
+    queryFn: fetchGlobalData,
+    keepPreviousData: true,
+  });
+
+  return {
+    globalData: data.data || [],
+    pagination: data.pagination || {},
+    isLoading,
+    isError,
+    error,
+    refetch,
+  };
+};
 
 // get Category
 export const useCategory = (status) => {
@@ -658,32 +748,6 @@ export const useuserDetails = (id) => {
   });
 
   return { userDetails, isLoading, isError, error, refetch };
-};
-
-// Order
-export const useOrders = ({ page = 1, limit = 10, status, isLater } = {}) => {
-  const getOrders = async () => {
-    const response = await API.get("/orders/all", {
-      params: { page, limit, status, isLater },
-    });
-    return response.data;
-  };
-
-  const {
-    data: response = {},
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["orders", page, limit, status, isLater],
-    queryFn: getOrders,
-    keepPreviousData: true,
-  });
-
-  const { data: orders = [], pagination = {} } = response;
-
-  return { orders, pagination, isLoading, isError, error, refetch };
 };
 
 // get Food Details
