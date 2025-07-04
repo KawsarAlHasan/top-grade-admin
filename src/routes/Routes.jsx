@@ -9,7 +9,7 @@ import PrivateRoute from "./PrivageRoute";
 import CoursesTopic from "../pages/coursesTopic/CoursesTopic";
 import Contents from "../pages/contents/Contents";
 import CourseDetails from "../pages/courseDetails/CourseDetails";
-import SchoolCourses from "../pages/schoolCourses/schoolCourses";
+import SchoolCourses from "../pages/schoolCourses/SchoolCourses";
 import SingleSchoolCourse from "../pages/singleSchoolCourse/SingleSchoolCourse";
 import Orders from "../pages/orders/Orders";
 import OrdersDetails from "../pages/orders/OrdersDetails";
