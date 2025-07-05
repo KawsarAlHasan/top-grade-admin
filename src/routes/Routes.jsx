@@ -13,6 +13,8 @@ import SchoolCourses from "../pages/schoolCourses/SchoolCourses";
 import SingleSchoolCourse from "../pages/singleSchoolCourse/SingleSchoolCourse";
 import Orders from "../pages/orders/Orders";
 import OrdersDetails from "../pages/orders/OrdersDetails";
+import SchoolOrders from "../pages/schoolOrders/SchoolOrders";
+import SchoolOrderDetails from "../pages/schoolOrders/SchoolOrderDetails";
 
 export const router = createBrowserRouter([
   {
@@ -55,7 +57,6 @@ export const router = createBrowserRouter([
         path: "/school-courses/:schoolCoursesID",
         element: <SingleSchoolCourse />,
       },
-
       {
         path: "/users",
         element: <Users />,
@@ -67,6 +68,14 @@ export const router = createBrowserRouter([
       {
         path: "/orders/:orderId",
         element: <OrdersDetails />,
+      },
+      {
+        path: "/school-orders",
+        element: <SchoolOrders />,
+      },
+      {
+        path: "/school-orders/:schoolOrderId",
+        element: <SchoolOrderDetails />,
       },
     ],
   },

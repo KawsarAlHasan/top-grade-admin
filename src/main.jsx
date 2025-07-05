@@ -15,3 +15,12 @@ createRoot(document.getElementById("root")).render(
     </QueryClientProvider>
   </React.StrictMode>
 );
+
+
+
+// Home Tutoring
+// Semester
+// Video
+// Dashboard
+// Setting
+// Response

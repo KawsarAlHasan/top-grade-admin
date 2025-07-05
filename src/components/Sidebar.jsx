@@ -40,6 +40,11 @@ const Sidebar = ({ onClick }) => {
       icon: <BarChartOutlined />,
       label: <Link to="/orders">Orders</Link>,
     },
+    {
+      key: "7",
+      icon: <BarChartOutlined />,
+      label: <Link to="/school-orders">School Orders</Link>,
+    },
 
     {
       key: "8",

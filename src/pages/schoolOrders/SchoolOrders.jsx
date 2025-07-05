@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Table,
   Button,
-  Spin,
   Input,
   Skeleton,
   Alert,
@@ -11,20 +10,20 @@ import {
   Select,
   notification,
   Avatar,
+  Badge,
 } from "antd";
 import {
   EditOutlined,
   EyeOutlined,
   ReloadOutlined,
-  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import { API, useOrders } from "../../api/api";
+import { API, useSchoolOrders } from "../../api/api";
+
 const { Search } = Input;
 const { Option } = Select;
-const { confirm } = Modal;
 
-function Order() {
+function SchoolOrders() {
   const [searchText, setSearchText] = useState("");
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -38,9 +37,9 @@ function Order() {
     status: null,
   });
 
-  // Fetch orders using the API hook
-  const { orders, pagination, isLoading, isError, error, refetch } =
-    useOrders(filters);
+  // Fetch school orders using the API hook
+  const { schoolOrders, pagination, isLoading, isError, error, refetch } =
+    useSchoolOrders(filters);
 
   const openNotification = (type, message, description) => {
     notification[type]({
@@ -60,20 +59,21 @@ function Order() {
   const handleStatusUpdate = async () => {
     setUpdateLoading(true);
     try {
-      await API.put(`/order/status/${selectedOrder.id}`, {
+      await API.put(`/school-order/status/${selectedOrder.id}`, {
         status: selectedStatus,
       });
+
       openNotification("success", "Success", "Status updated successfully!");
       refetch();
       setIsStatusModalOpen(false);
     } catch (err) {
+      console.log(err, "err");
       openNotification("error", "Error", "Failed to update status.");
     } finally {
       setUpdateLoading(false);
     }
   };
 
-  // Handle table changes (pagination, filters, sorter)
   const handleTableChange = (pagination, tableFilters) => {
     const { current: page, pageSize: limit } = pagination;
     const status = tableFilters.status ? tableFilters.status[0] : null;
@@ -87,7 +87,7 @@ function Order() {
   };
 
   React.useEffect(() => {
-    refetch(); // Refetch data whenever filters are updated
+    refetch();
   }, [filters, refetch]);
 
   const getStatusColor = (status) => {
@@ -105,6 +105,17 @@ function Order() {
     }
   };
 
+  const getOrderTypeBadge = (type) => {
+    switch (type) {
+      case "home_tutoring":
+        return <Tag color="blue">Home Tutoring</Tag>;
+      case "study_nodes":
+        return <Tag color="green">Study Notes</Tag>;
+      default:
+        return <Tag color="gray">{type}</Tag>;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -112,13 +123,14 @@ function Order() {
       </div>
     );
   }
+
   if (isError) {
     if (error?.response?.status === 404) {
       return (
         <div className="p-4">
           <Alert
             message="No Data"
-            description="No Order found."
+            description="No school orders found."
             type="info"
             showIcon
           />
@@ -150,20 +162,14 @@ function Order() {
 
   const columns = [
     {
-      title: "Serial",
+      title: "ID",
       dataIndex: "id",
       key: "id",
-      render: (text, record, index) =>
-        index + 1 + (filters.page - 1) * filters.limit,
+      sorter: true,
     },
     {
-      title: "Order Id",
-      dataIndex: "order_id",
-      key: "order_id",
-    },
-    {
-      title: "User Name",
-      key: "user_name",
+      title: "Student",
+      key: "student",
       render: (_, record) => (
         <div className="flex items-center">
           <Avatar src={record.profile_pic} size="small">
@@ -177,21 +183,57 @@ function Order() {
       ),
     },
     {
-      title: "Total Price",
-      dataIndex: "total_price",
-      key: "total_price",
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (type) => getOrderTypeBadge(type),
+      filters: [
+        { text: "Home Tutoring", value: "home_tutoring" },
+        { text: "Study Notes", value: "study_nodes" },
+      ],
     },
     {
-      title: "Phone Number",
-      dataIndex: "c_number",
-      key: "c_number",
-    },
-    {
-      title: "Order Date",
-      dataIndex: "create_at",
-      key: "create_at",
+      title: "Details",
+      key: "details",
       render: (_, record) => (
-        <p>{new Date(record.create_at).toLocaleDateString()}</p>
+        <div>
+          <div>
+            <span className="font-medium">Date:</span>{" "}
+            {new Date(record.date).toLocaleDateString()}
+          </div>
+          {record.type === "home_tutoring" && (
+            <>
+              <div>
+                <span className="font-medium">Time:</span> {record.fromTime} - {record.toTime}
+              </div>
+              <div>
+                <span className="font-medium">Duration:</span> {record.totalHourse}
+              </div>
+            </>
+          )}
+          <div>
+            <span className="font-medium">Address:</span> {record.city}, {record.block}, Floor {record.floor}, Apt {record.apartment}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Contact",
+      dataIndex: "contact_number",
+      key: "contact_number",
+    },
+    {
+      title: "Payment",
+      key: "payment",
+      render: (_, record) => (
+        <div>
+          <div>Total: ${record.total_price}</div>
+          {record.coupon_code && (
+            <div className="text-xs">
+              Coupon: {record.coupon_code} (-${record.coupon_discount})
+            </div>
+          )}
+        </div>
       ),
     },
     {
@@ -217,47 +259,52 @@ function Order() {
     },
     {
       title: "Details",
-      dataIndex: "Details",
-      key: "Details",
+      key: "details",
       render: (_, record) => (
-        <Link to={`/orders/${record.id}`}>
+        <Link to={`/school-orders/${record.id}`}>
           <Button type="primary" size="small" icon={<EyeOutlined />}>
-            Details
+            View
           </Button>
         </Link>
       ),
     },
   ];
 
-  const filteredData = orders.filter((item) =>
-    item?.order_id.toLowerCase().includes(searchText.toLowerCase())
-  );
 
-  const data = filteredData.map((item, index) => ({
-    key: index,
+  const filteredData = schoolOrders?.filter((item) => {
+    const searchContent = `${item.id} ${item.first_name} ${item.last_name} ${item.email} ${item.contact_number} ${item.type}`.toLowerCase();
+    return searchContent.includes(searchText.toLowerCase());
+  });
+
+  const data = filteredData?.map((item) => ({
+    key: item.id,
     ...item,
   }));
 
   return (
-    <div>
-      <div className="flex justify-between my-4">
-        <h2 className="text-center text-2xl font-semibold ">All Orders List</h2>
+    <div className="container mx-auto px-4 ">
+      
+      <div className="flex justify-between my-4 ">
+      <h2 className="text-2xl font-semibold">School Orders Management</h2>
         <Search
-          placeholder="Search Order ID..."
+          placeholder="Search orders..."
+          allowClear
           onChange={(e) => setSearchText(e.target.value)}
           style={{ width: 300 }}
         />
       </div>
+
       <Table
         columns={columns}
         dataSource={data}
         pagination={{
           current: filters.page,
           pageSize: filters.limit,
-          total: pagination.total,
+          total: pagination?.total || 0,
         }}
         onChange={handleTableChange}
         bordered
+        scroll={{ x: true }}
       />
 
       <Modal
@@ -305,4 +352,4 @@ function Order() {
   );
 }
 
-export default Order;
+export default SchoolOrders;

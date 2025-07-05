@@ -62,6 +62,9 @@ export const useAllUsers = () => {
   return { allUsers, isLoading, isError, error, refetch };
 };
 
+
+// /school-order
+
 // get courses all
 export const useAllCourses = () => {
   const getAllCourses = async () => {
@@ -261,6 +264,53 @@ export const useSingleOrder = (orderId) => {
   });
 
   return { singleOrder, isLoading, isError, error, refetch };
+};
+
+// get all School Orders
+export const useSchoolOrders = ({ page = 1, limit = 50, status } = {}) => {
+  const getSchoolOrders = async () => {
+    const response = await API.get("/school-order/all", {
+      params: { page, limit, status },
+    });
+    return response.data;
+  };
+
+  const {
+    data: response = {},
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["schoolOrders", page, limit, status],
+    queryFn: getSchoolOrders,
+    keepPreviousData: true,
+  });
+
+  const { data: schoolOrders = [], pagination = {} } = response;
+
+  return { schoolOrders, pagination, isLoading, isError, error, refetch };
+};
+
+// get single School order
+export const useSingleSchoolOrder = (schoolOrderId) => {
+  const getSingleSchoolOrder = async () => {
+    const response = await API.get(`/school-order/single/${schoolOrderId}`);
+    return response.data;
+  };
+
+  const {
+    data: singleSchoolOrder = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["singleSchoolOrder", schoolOrderId],
+    queryFn: getSingleSchoolOrder,
+  });
+
+  return { singleSchoolOrder, isLoading, isError, error, refetch };
 };
 
 // not use

@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import {
-  Skeleton,
-  Alert,
   Table,
   Button,
-  Image,
   Input,
   Modal,
   notification,
@@ -12,43 +9,69 @@ import {
   Tag,
   message,
   Select,
+  Form,
 } from "antd";
 import {
-  EyeOutlined,
   EditOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
-  ReloadOutlined,
 } from "@ant-design/icons";
-
-import { Link, useParams } from "react-router-dom";
-// import AddPackage from "./AddPackage";
 import { API } from "../../../api/api";
+import AddStudyNote from "./AddStudyNote";
 
 const { Search } = Input;
 const { confirm } = Modal;
+const { Option } = Select;
 
 function StudyNotes({ studyNotesData = [], refetch }) {
-  const { schoolCoursesID } = useParams();
   const [searchText, setSearchText] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+  const [editingStudyNote, setEditingStudyNote] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [editingPackage, setEditingPackage] = useState(null);
-
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [selectedStudyNote, setSelectedStudyNote] = useState(null);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
 
+  const [form] = Form.useForm();
+
   const handleEdit = (record) => {
-    setEditingPackage(record);
+    setEditingStudyNote(record);
+    form.setFieldsValue({
+      name: record.name,
+      price: record.price,
+      status: record.status,
+    });
     setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const values = await form.validateFields();
+      
+      await API.put(`/study-note/update/${editingStudyNote.id}`, {
+        name: values.name,
+        price: values.price,
+        status: values.status,
+      });
+
+      message.success("Study note updated successfully!");
+      refetch();
+      setIsEditModalOpen(false);
+    } catch (error) {
+      message.error("Failed to update study note.");
+      console.error("Error updating study note:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleModalClose = () => {
     setIsEditModalOpen(false);
-    setEditingPackage(null);
+    setEditingStudyNote(null);
+    form.resetFields();
   };
 
   const handleStatusChange = async () => {
@@ -56,12 +79,11 @@ function StudyNotes({ studyNotesData = [], refetch }) {
 
     try {
       setIsUpdatingStatus(true);
-      //   await API.put(`/user/status/${selectedStudyNote.id}`, {
-      //     status: selectedStatus,
-      //   });
+      await API.put(`/study-note/status/${selectedStudyNote.id}`, {
+        status: selectedStatus,
+      });
 
-      console.log(selectedStudyNote.id, "selectedStudyNote.id");
-      message.success(`User status updated to ${selectedStatus}`);
+      message.success(`Study note status updated to ${selectedStatus}`);
       refetch();
       setIsStatusModalVisible(false);
     } catch (error) {
@@ -71,7 +93,7 @@ function StudyNotes({ studyNotesData = [], refetch }) {
     }
   };
 
-  const showDeleteConfirm = (pID) => {
+  const showDeleteConfirm = (snID) => {
     confirm({
       title: "Are you sure you want to delete this Study Note?",
       icon: <ExclamationCircleOutlined />,
@@ -80,15 +102,15 @@ function StudyNotes({ studyNotesData = [], refetch }) {
       okType: "danger",
       cancelText: "No, cancel",
       onOk() {
-        return handleDelete(pID);
+        return handleDelete(snID);
       },
     });
   };
 
-  const handleDelete = async (pID) => {
+  const handleDelete = async (snID) => {
     try {
       setIsDeleting(true);
-      //   await API.delete(`/content/package/delete/${pID}`);
+      await API.delete(`/study-note/delete/${snID}`);
       notification.success({
         message: "Study Note deleted successfully",
       });
@@ -102,8 +124,6 @@ function StudyNotes({ studyNotesData = [], refetch }) {
       setIsDeleting(false);
     }
   };
-
-  console.log(studyNotesData, "studyNotesData");
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -153,6 +173,7 @@ function StudyNotes({ studyNotesData = [], refetch }) {
       title: "Price",
       dataIndex: "price",
       key: "price",
+      render: (price) => `$${price}`,
     },
     {
       title: "Status",
@@ -210,12 +231,12 @@ function StudyNotes({ studyNotesData = [], refetch }) {
           onChange={(e) => setSearchText(e.target.value)}
           style={{ width: 300 }}
         />
-        {/* <AddPackage refetch={refetch} /> */}
+        <AddStudyNote refetch={refetch} />
       </div>
       {data.length === 0 ? (
         <Card>
           <div className="text-center text-gray-500 font-bold">
-            No Course available
+            No Study Notes available
           </div>
         </Card>
       ) : (
@@ -226,16 +247,66 @@ function StudyNotes({ studyNotesData = [], refetch }) {
         />
       )}
 
-      {/* <EditPackage
-        isOpen={isEditModalOpen}
-        onClose={handleModalClose}
-        packageData={editingPackage}
-        refetch={refetch}
-      /> */}
+      {/* Edit Study Note Modal */}
+      <Modal
+        title="Edit Study Note"
+        open={isEditModalOpen}
+        onOk={handleEditSubmit}
+        onCancel={handleModalClose}
+        okText="Save Changes"
+        cancelText="Cancel"
+        confirmLoading={isSubmitting}
+        width={700}
+      >
+        <Form form={form} layout="vertical" className="space-y-4">
+          {/* Study Note Name */}
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: 'Please enter study note name' }]}
+          >
+            <Input placeholder="Enter study note name" size="large" />
+          </Form.Item>
 
+          {/* Price */}
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[
+              { required: true, message: 'Please enter price' },
+              { type: 'number', message: 'Please enter a valid number', 
+                transform: value => Number(value) },
+              { validator: (_, value) => 
+                value >= 0 ? Promise.resolve() : Promise.reject('Price cannot be negative') 
+              }
+            ]}
+          >
+            <Input
+              type="number"
+              placeholder="Enter price"
+              size="large"
+              addonAfter="$"
+            />
+          </Form.Item>
+
+          {/* Status */}
+          <Form.Item
+            label="Status"
+            name="status"
+            rules={[{ required: true, message: 'Please select status' }]}
+          >
+            <Select placeholder="Select status" size="large">
+              <Option value="Active">Active</Option>
+              <Option value="Deactive">Deactive</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Status Change Modal */}
       <Modal
         title="Change Study Note Status"
-        visible={isStatusModalVisible}
+        open={isStatusModalVisible}
         onCancel={() => setIsStatusModalVisible(false)}
         footer={[
           <Button key="cancel" onClick={() => setIsStatusModalVisible(false)}>
