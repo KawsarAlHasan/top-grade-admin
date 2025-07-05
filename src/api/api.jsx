@@ -62,7 +62,6 @@ export const useAllUsers = () => {
   return { allUsers, isLoading, isError, error, refetch };
 };
 
-
 // /school-order
 
 // get courses all
