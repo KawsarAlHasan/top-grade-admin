@@ -46,30 +46,30 @@ const Sidebar = ({ onClick }) => {
       label: <Link to="/school-orders">School Orders</Link>,
     },
 
-    {
-      key: "8",
-      icon: <SettingOutlined />,
-      label: "Settings",
-      children: [
-        {
-          key: "8-1",
-          label: <Link to="/coupons">Coupons</Link>,
-        },
+    // {
+    //   key: "8",
+    //   icon: <SettingOutlined />,
+    //   label: "Settings",
+    //   children: [
+    //     {
+    //       key: "8-1",
+    //       label: <Link to="/coupons">Coupons</Link>,
+    //     },
 
-        {
-          key: "8-4-1",
-          label: <Link to="/terms">Terms</Link>,
-        },
-        {
-          key: "8-4-2",
-          label: <Link to="/privacy">Privacy</Link>,
-        },
-        {
-          key: "8-4-3",
-          label: <Link to="/about-us">About us</Link>,
-        },
-      ],
-    },
+    //     {
+    //       key: "8-4-1",
+    //       label: <Link to="/terms">Terms</Link>,
+    //     },
+    //     {
+    //       key: "8-4-2",
+    //       label: <Link to="/privacy">Privacy</Link>,
+    //     },
+    //     {
+    //       key: "8-4-3",
+    //       label: <Link to="/about-us">About us</Link>,
+    //     },
+    //   ],
+    // },
   ];
 
   return (

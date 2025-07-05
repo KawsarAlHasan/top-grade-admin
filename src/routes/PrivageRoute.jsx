@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAdminProfile } from "../api/api";
 import { Spin } from "antd";
+import Loading from "../components/Loading";
 
 const PrivateRoute = ({ children }) => {
   const { admin, isLoading, isError, error } = useAdminProfile();
@@ -10,7 +11,7 @@ const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
 
   if (isLoading) {
-    return <Spin />;
+    return <Loading />
   }
 
   if (isError || error || !admin || !token) {
