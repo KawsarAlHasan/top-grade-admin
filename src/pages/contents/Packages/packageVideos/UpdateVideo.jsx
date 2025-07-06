@@ -1,16 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { API } from "../../../../api/api";
-import { useParams } from "react-router-dom";
 import { Button, Form, Input, Modal, Select, Spin, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-function AddPackageVideo({ refetch }) {
-  const { contentID } = useParams();
+function UpdateVideo({ videoData, refetch }) {
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (visible && videoData) {
+      form.setFieldsValue({
+        title: videoData.title,
+        url: videoData.url,
+        sr_no: videoData.sr_no,
+        duration: videoData.duration,
+        isPaid: videoData.isPaid,
+      });
+    }
+  }, [visible, videoData, form]);
 
   const showModal = () => {
     setVisible(true);
@@ -25,8 +35,6 @@ function AddPackageVideo({ refetch }) {
     try {
       setLoading(true);
       const payload = {
-        type: "package",
-        type_id: contentID,
         url: values.url,
         sr_no: values.sr_no,
         title: values.title,
@@ -34,13 +42,12 @@ function AddPackageVideo({ refetch }) {
         isPaid: values.isPaid,
       };
 
-      await API.post("/video/create", payload);
-      message.success("Video added successfully");
+      await API.put(`/video/update/${videoData.id}`, payload);
+      message.success("Video updated successfully");
       refetch();
       handleCancel();
     } catch (error) {
-      message.error(error.response?.data?.message || "Failed to add video");
-      console.log(error);
+      message.error(error.response?.data?.message || "Failed to update video");
     } finally {
       setLoading(false);
     }
@@ -48,23 +55,18 @@ function AddPackageVideo({ refetch }) {
 
   return (
     <>
-      <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-        Add Video
+      <Button icon={<EditOutlined />} onClick={showModal} disabled={!videoData}>
+        Edit
       </Button>
 
       <Modal
-        title="Add New Video to Package"
+        title={`Update Video: ${videoData?.title || ""}`}
         visible={visible}
         onCancel={handleCancel}
         footer={null}
         destroyOnClose
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          initialValues={{ isPaid: 1 }}
-        >
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
             name="title"
             label="Video Title"
@@ -112,7 +114,7 @@ function AddPackageVideo({ refetch }) {
             <div className="flex justify-end space-x-3">
               <Button onClick={handleCancel}>Cancel</Button>
               <Button type="primary" htmlType="submit" loading={loading}>
-                {loading ? <Spin /> : "Add Video"}
+                {loading ? <Spin /> : "Update Video"}
               </Button>
             </div>
           </Form.Item>
@@ -122,4 +124,4 @@ function AddPackageVideo({ refetch }) {
   );
 }
 
-export default AddPackageVideo;
+export default UpdateVideo;

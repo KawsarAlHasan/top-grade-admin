@@ -15,7 +15,7 @@ import Orders from "../pages/orders/Orders";
 import OrdersDetails from "../pages/orders/OrdersDetails";
 import SchoolOrders from "../pages/schoolOrders/SchoolOrders";
 import SchoolOrderDetails from "../pages/schoolOrders/SchoolOrderDetails";
-import PackageVideos from "../pages/contents/Packages/packageVideos/packageVideos";
+import PackageVideos from "../pages/contents/Packages/packageVideos/PackageVideos";
 
 export const router = createBrowserRouter([
   {

@@ -16,9 +16,7 @@ createRoot(document.getElementById("root")).render(
   </React.StrictMode>
 );
 
-
 // Semester
-// Video
 
 // Dashboard
 // Setting
