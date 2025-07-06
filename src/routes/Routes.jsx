@@ -15,6 +15,7 @@ import Orders from "../pages/orders/Orders";
 import OrdersDetails from "../pages/orders/OrdersDetails";
 import SchoolOrders from "../pages/schoolOrders/SchoolOrders";
 import SchoolOrderDetails from "../pages/schoolOrders/SchoolOrderDetails";
+import PackageVideos from "../pages/contents/Packages/packageVideos/packageVideos";
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
       {
         path: "/courses/:courseId/:topicId/:courseDetailsID",
         element: <Contents />,
+      },
+      {
+        path: "/courses/:courseId/:topicId/:courseDetailsID/packages/:contentID",
+        element: <PackageVideos />,
       },
       {
         path: "/school-courses",

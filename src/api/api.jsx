@@ -312,6 +312,27 @@ export const useSingleSchoolOrder = (schoolOrderId) => {
   return { singleSchoolOrder, isLoading, isError, error, refetch };
 };
 
+// get single School order
+export const useSingleVideoPackage = (contentID) => {
+  const getSingleVideoPackage = async () => {
+    const response = await API.get(`/video/package/${contentID}`);
+    return response.data;
+  };
+
+  const {
+    data: singleVideoPackage = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["singleVideoPackage", contentID],
+    queryFn: getSingleVideoPackage,
+  });
+
+  return { singleVideoPackage, isLoading, isError, error, refetch };
+};
+
 // not use
 // not use
 // not use

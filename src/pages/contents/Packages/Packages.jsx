@@ -18,7 +18,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import AddPackage from "./AddPackage";
 import { API } from "../../../api/api";
 import EditPackage from "./EditPackage";
@@ -27,6 +27,7 @@ const { Search } = Input;
 const { confirm } = Modal;
 
 function Packages({ packagesData = [], refetch }) {
+  const {courseId, topicId, courseDetailsID} = useParams()
   const [searchText, setSearchText] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -110,7 +111,7 @@ function Packages({ packagesData = [], refetch }) {
       title: "View",
       key: "view",
       render: (_, record) => (
-        <Link to={`/courses/${record.id}`}>
+        <Link to={`/courses/${courseId}/${topicId}/${courseDetailsID}/packages/${record.id}`}>
           <Button size="small" icon={<EyeOutlined />}>
             View
           </Button>
