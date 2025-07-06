@@ -24,6 +24,7 @@ import {
 } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import Packages from "./Packages/Packages";
+import Semesters from "./semesters/Semesters";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -135,52 +136,7 @@ function Contents() {
           }
           key="2"
         >
-          <Card
-            title={semester?.title}
-            extra={<Tag color="orange">${semester?.price}</Tag>}
-          >
-            <p>{semester?.description}</p>
-            <Text type="secondary">Duration: {semester?.duration}</Text>
-
-            <Divider orientation="left">Chapters</Divider>
-            <List
-              dataSource={semester?.chapter}
-              bordered
-              renderItem={(item) => (
-                <List.Item>
-                  <BookOutlined className="mr-2" /> {item.chapter_name}
-                </List.Item>
-              )}
-            />
-
-            <Divider orientation="left">Videos</Divider>
-            <Row gutter={[16, 16]}>
-              {semester?.vedios?.map((video) => (
-                <Col xs={24} sm={12} md={8} key={video.id}>
-                  <Card
-                    title={video.title}
-                    cover={
-                      <video
-                        src={video.url}
-                        controls
-                        style={{
-                          width: "100%",
-                          height: 200,
-                          objectFit: "cover",
-                        }}
-                      />
-                    }
-                  >
-                    <Text>Duration: {video.duration}</Text>
-                    <br />
-                    <Tag color={video.isPaid ? "red" : "green"}>
-                      {video.isPaid ? "Paid" : "Free"}
-                    </Tag>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Card>
+          <Semesters semesterData={data?.semester || []} refetch={refetch} />
         </TabPane>
       </Tabs>
     </div>
