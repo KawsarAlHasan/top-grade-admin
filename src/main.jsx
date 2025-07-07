@@ -15,9 +15,3 @@ createRoot(document.getElementById("root")).render(
     </QueryClientProvider>
   </React.StrictMode>
 );
-
-// Semester
-
-// Dashboard
-// Setting
-// Response

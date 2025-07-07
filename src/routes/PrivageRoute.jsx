@@ -1,7 +1,5 @@
-import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAdminProfile } from "../api/api";
-import { Spin } from "antd";
 import Loading from "../components/Loading";
 
 const PrivateRoute = ({ children }) => {

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Avatar, Menu, Dropdown, Button, Badge, Drawer } from "antd";
+import React, { useState } from "react";
+import { Avatar, Dropdown, Button, Drawer, Badge, Space } from "antd";
 import { Link } from "react-router-dom";
-
 import {
   MenuOutlined,
   BellOutlined,
@@ -18,12 +17,11 @@ const Navbar = ({ showDrawer }) => {
     signOutAdmin();
   };
 
-  // Menu items for the dropdown under the profile
   const profileMenuItems = [
     {
       key: "profile",
       label: (
-        <Link to="/profile">
+        <Link to="/profile" className="flex items-center gap-2 px-4 py-2">
           <UserOutlined /> Profile
         </Link>
       ),
@@ -31,7 +29,7 @@ const Navbar = ({ showDrawer }) => {
     {
       key: "settings",
       label: (
-        <Link to="/settings">
+        <Link to="/settings" className="flex items-center gap-2 px-4 py-2">
           <SettingOutlined /> Settings
         </Link>
       ),
@@ -39,82 +37,78 @@ const Navbar = ({ showDrawer }) => {
     {
       key: "logout",
       label: (
-        <span onClick={handleSignOut}>
+        <span 
+          onClick={handleSignOut} 
+          className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+        >
           <LogoutOutlined /> Logout
         </span>
       ),
     },
   ];
 
-  const profileMenu = {
-    items: profileMenuItems,
-  };
-
-  const headerItems = [
-    {
-      label: (
-        <Badge count={0} className="mt-[24px]">
-          <BellOutlined
-            style={{ fontSize: "24px", cursor: "pointer" }}
-            onClick={() => setDrawerVisible(true)}
-          />
-        </Badge>
-      ),
-    },
-    {
-      label: (
-        <Dropdown menu={profileMenu} trigger={["click", "hover"]}>
-          <Avatar icon={<UserOutlined />} />
-        </Dropdown>
-      ),
-    },
-  ];
-
   return (
-    <div className="flex items-center justify-between w-full">
-      {/* Logo on the left side */}
-      <div className="logo">
-        <Link className="text-2xl font-bold" to="/">
-          Top Grade
-          {/* <img
-            src="https://crictoday.com/wp-content/uploads/2024/05/Shakib-a_d_d-1200x675.webp" // Replace with your logo URL
-            alt="Logo"
-            style={{ height: "40px" }}
-          /> */}
-        </Link>
+    <header className="w-full bg-white shadow-sm fixed top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Left section */}
+          <div className="flex items-center">
+            <Button
+              type="text"
+              className="md:hidden mr-2"
+              icon={<MenuOutlined className="text-lg" />}
+              onClick={showDrawer}
+            />
+            <Link 
+              to="/" 
+              className="text-xl font-bold text-gray-900 whitespace-nowrap"
+            >
+              Top Grade
+            </Link>
+          </div>
+
+          {/* Right section */}
+          <div className="flex items-center gap-4">
+            <Badge 
+              count={0} 
+              size="small" 
+              className="cursor-pointer hover:text-blue-500 transition-colors"
+            >
+              <BellOutlined
+                className="text-xl"
+                onClick={() => setDrawerVisible(true)}
+              />
+            </Badge>
+
+            <Dropdown 
+              menu={{ items: profileMenuItems }} 
+              trigger={["click"]}
+              placement="bottomRight"
+              overlayClassName="w-48"
+            >
+              <Avatar 
+                icon={<UserOutlined />} 
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                size="default"
+              />
+            </Dropdown>
+          </div>
+        </div>
       </div>
 
-      {/* Button for small screens */}
-      <Button
-        className="lg:hidden block"
-        icon={<MenuOutlined />}
-        onClick={showDrawer}
-      ></Button>
-
-      {/* Menu items on the right side */}
-      <Menu
-        mode="horizontal"
-        items={headerItems}
-        className="hidden lg:flex justify-end flex-1 min-w-0"
-      />
-
-      {/* Drawer for notifications */}
       <Drawer
         title="Notifications"
         placement="right"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
+        width={300}
+        bodyStyle={{ padding: 0 }}
       >
-        hello
-        {/* <Notification
-          notification={notification}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-          refetch={refetch}
-        /> */}
+        <div className="p-4">
+          <p>No new notifications</p>
+        </div>
       </Drawer>
-    </div>
+    </header>
   );
 };
 

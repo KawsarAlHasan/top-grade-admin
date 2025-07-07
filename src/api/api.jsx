@@ -41,6 +41,27 @@ export const signOutAdmin = () => {
   window.location.href = "/login";
 };
 
+
+export const useDashboard = () => {
+  const getDashboard = async () => {
+    const response = await API.get("/dashboard");
+    return response.data;
+  };
+
+  const {
+    data: dashboardData = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["dashboardData"],
+    queryFn: getDashboard,
+  });
+
+  return { dashboardData, isLoading, isError, error, refetch };
+};
+
 // get all user
 export const useAllUsers = () => {
   const getAllUsers = async () => {
@@ -84,6 +105,8 @@ export const useAllCourses = () => {
 
   return { allCourses, isLoading, isError, error, refetch };
 };
+
+
 
 // get topics by course id
 export const useTopicsByCoursesID = (coursesID) => {
@@ -332,6 +355,8 @@ export const useSingleVideoPackage = (contentID) => {
 
   return { singleVideoPackage, isLoading, isError, error, refetch };
 };
+
+
 
 // not use
 // not use
