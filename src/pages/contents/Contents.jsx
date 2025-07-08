@@ -136,7 +136,7 @@ function Contents() {
           }
           key="2"
         >
-          <Semesters semesterData={data?.semester || []} refetch={refetch} />
+          <Semesters semesterData={semester || []} refetch={refetch} />
         </TabPane>
       </Tabs>
     </div>

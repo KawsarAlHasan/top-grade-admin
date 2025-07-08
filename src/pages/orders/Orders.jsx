@@ -220,7 +220,7 @@ function Order() {
       dataIndex: "Details",
       key: "Details",
       render: (_, record) => (
-        <Link to={`/orders/${record.id}`}>
+        <Link to={`/university-orders/${record.id}`}>
           <Button type="primary" size="small" icon={<EyeOutlined />}>
             Details
           </Button>

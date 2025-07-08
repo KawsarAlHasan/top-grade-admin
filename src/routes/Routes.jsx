@@ -16,6 +16,9 @@ import OrdersDetails from "../pages/orders/OrdersDetails";
 import SchoolOrders from "../pages/schoolOrders/SchoolOrders";
 import SchoolOrderDetails from "../pages/schoolOrders/SchoolOrderDetails";
 import PackageVideos from "../pages/contents/Packages/packageVideos/PackageVideos";
+import Profile from "../pages/profile/Profile";
+import ChangePassword from "../pages/profile/ChangePassword";
+import Coupon from "../pages/settings/Coupon";
 
 export const router = createBrowserRouter([
   {
@@ -35,23 +38,23 @@ export const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/courses",
+        path: "/university-courses",
         element: <Courses />,
       },
       {
-        path: "/courses/:courseId",
+        path: "/university-courses/:courseId",
         element: <CoursesTopic />,
       },
       {
-        path: "/courses/:courseId/:topicId",
+        path: "/university-courses/:courseId/:topicId",
         element: <CourseDetails />,
       },
       {
-        path: "/courses/:courseId/:topicId/:courseDetailsID",
+        path: "/university-courses/:courseId/:topicId/:courseDetailsID",
         element: <Contents />,
       },
       {
-        path: "/courses/:courseId/:topicId/:courseDetailsID/packages/:contentID",
+        path: "/university-courses/:courseId/:topicId/:courseDetailsID/:contentID",
         element: <PackageVideos />,
       },
       {
@@ -67,11 +70,11 @@ export const router = createBrowserRouter([
         element: <Users />,
       },
       {
-        path: "/orders",
+        path: "/university-orders",
         element: <Orders />,
       },
       {
-        path: "/orders/:orderId",
+        path: "/university-orders/:orderId",
         element: <OrdersDetails />,
       },
       {
@@ -81,6 +84,18 @@ export const router = createBrowserRouter([
       {
         path: "/school-orders/:schoolOrderId",
         element: <SchoolOrderDetails />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/change-password",
+        element: <ChangePassword />,
+      },
+      {
+        path: "/coupon",
+        element: <Coupon />,
       },
     ],
   },

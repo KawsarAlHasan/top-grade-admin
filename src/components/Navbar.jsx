@@ -27,10 +27,10 @@ const Navbar = ({ showDrawer }) => {
       ),
     },
     {
-      key: "settings",
+      key: "change-password",
       label: (
-        <Link to="/settings" className="flex items-center gap-2 px-4 py-2">
-          <SettingOutlined /> Settings
+        <Link to="/change-password" className="flex items-center gap-2 px-4 py-2">
+          <SettingOutlined /> Change Password
         </Link>
       ),
     },

@@ -166,7 +166,7 @@ const Courses = () => {
       title: "View",
       key: "view",
       render: (_, record) => (
-        <Link to={`/courses/${record.id}`}>
+        <Link to={`/university-courses/${record.id}`}>
           <Button size="small" icon={<EyeOutlined />}>
             View
           </Button>

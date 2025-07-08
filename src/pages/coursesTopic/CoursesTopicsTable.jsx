@@ -88,7 +88,7 @@ function CoursesTopicsTable({ courseTopics, refetch }) {
       title: "View",
       key: "view",
       render: (_, record) => (
-        <Link to={`/courses/${courseId}/${record.id}`}>
+        <Link to={`/university-courses/${courseId}/${record.id}`}>
           <Button size="small" icon={<EyeOutlined />}>
             View
           </Button>

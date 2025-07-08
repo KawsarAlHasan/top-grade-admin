@@ -111,7 +111,7 @@ function Packages({ packagesData = [], refetch }) {
       title: "View",
       key: "view",
       render: (_, record) => (
-        <Link to={`/courses/${courseId}/${topicId}/${courseDetailsID}/packages/${record.id}`}>
+        <Link to={`/university-courses/${courseId}/${topicId}/${courseDetailsID}/${record.id}`}>
           <Button size="small" icon={<EyeOutlined />}>
             View
           </Button>
