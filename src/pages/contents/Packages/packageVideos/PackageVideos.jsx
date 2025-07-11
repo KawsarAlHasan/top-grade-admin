@@ -95,13 +95,6 @@ function PackageVideos() {
 
   const columns = [
     {
-      title: "SR No",
-      dataIndex: "sr_no",
-      key: "sr_no",
-      width: 80,
-      align: "center",
-    },
-    {
       title: "Title",
       dataIndex: "title",
       key: "title",

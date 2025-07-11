@@ -17,9 +17,11 @@ import {
   EyeOutlined,
   ReloadOutlined,
   ExclamationCircleOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { API, useOrders } from "../../api/api";
+import CreateOrder from "./CreateOrder";
 const { Search } = Input;
 const { Option } = Select;
 const { confirm } = Modal;
@@ -240,13 +242,23 @@ function Order() {
 
   return (
     <div>
+      <h2 className="text-center text-2xl font-semibold ">All Orders List</h2>
       <div className="flex justify-between my-4">
-        <h2 className="text-center text-2xl font-semibold ">All Orders List</h2>
         <Search
           placeholder="Search Order ID..."
           onChange={(e) => setSearchText(e.target.value)}
           style={{ width: 300 }}
         />
+
+        <Link to="/university-orders/create">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Add New Order
+          </Button>{" "}
+        </Link>
       </div>
       <Table
         columns={columns}

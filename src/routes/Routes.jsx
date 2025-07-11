@@ -19,6 +19,13 @@ import PackageVideos from "../pages/contents/Packages/packageVideos/PackageVideo
 import Profile from "../pages/profile/Profile";
 import ChangePassword from "../pages/profile/ChangePassword";
 import Coupon from "../pages/settings/Coupon";
+import CreateOrder from "../pages/orders/CreateOrder";
+import CreateSchoolOrder from "../pages/schoolOrders/CreateSchoolOrder";
+import Students from "../pages/users/students/students";
+import Teachers from "../pages/users/teachers/Teachers";
+import StudentDetails from "../pages/users/students/StudentDetails";
+import TeacherDetails from "../pages/users/teachers/TeacherDetails";
+import Assignments from "../pages/assignments/Assignments";
 
 export const router = createBrowserRouter([
   {
@@ -70,8 +77,28 @@ export const router = createBrowserRouter([
         element: <Users />,
       },
       {
+        path: "/students",
+        element: <Students />,
+      },
+      {
+        path: "/students/:studentId",
+        element: <StudentDetails />,
+      },
+      {
+        path: "/teachers",
+        element: <Teachers />,
+      },
+      {
+        path: "/teachers/:teacherId",
+        element: <TeacherDetails />,
+      },
+      {
         path: "/university-orders",
         element: <Orders />,
+      },
+      {
+        path: "/university-orders/create",
+        element: <CreateOrder />,
       },
       {
         path: "/university-orders/:orderId",
@@ -82,8 +109,16 @@ export const router = createBrowserRouter([
         element: <SchoolOrders />,
       },
       {
+        path: "/school-orders/create",
+        element: <CreateSchoolOrder />,
+      },
+      {
         path: "/school-orders/:schoolOrderId",
         element: <SchoolOrderDetails />,
+      },
+      {
+        path: "/assignments",
+        element: <Assignments />,
       },
       {
         path: "/profile",

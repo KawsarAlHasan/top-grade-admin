@@ -20,6 +20,8 @@ import {
 } from "@ant-design/icons";
 
 import { API, useAllCoupons } from "../../api/api";
+import AddCoupon from "./AddCoupon";
+import EditCoupon from "./EditCoupon";
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -145,14 +147,8 @@ const Coupon = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => console.log("Edit", record.id)}
-          >
-            Edit
-          </Button>
+          <EditCoupon refetch={refetch} couponData={record} />
+
           <Button
             danger
             size="small"
@@ -181,9 +177,7 @@ const Coupon = () => {
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 300 }}
           />
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add New Coupon
-          </Button>
+          <AddCoupon refetch={refetch} />
         </div>
 
         {data.length === 0 ? (

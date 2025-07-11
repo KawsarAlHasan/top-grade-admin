@@ -117,12 +117,6 @@ function Semesters({ semesterData = [], refetch }) {
 
   const videoColumns = [
     {
-      title: "SR No",
-      dataIndex: "sr_no",
-      key: "sr_no",
-      width: 80,
-    },
-    {
       title: "Title",
       dataIndex: "title",
       key: "title",

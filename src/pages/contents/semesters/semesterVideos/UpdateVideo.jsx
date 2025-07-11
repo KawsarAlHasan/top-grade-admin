@@ -15,7 +15,6 @@ function UpdateVideo({ videoData, refetch }) {
       form.setFieldsValue({
         title: videoData.title,
         url: videoData.url,
-        sr_no: videoData.sr_no,
         duration: videoData.duration,
         isPaid: videoData.isPaid,
       });
@@ -36,7 +35,6 @@ function UpdateVideo({ videoData, refetch }) {
       setLoading(true);
       const payload = {
         url: values.url,
-        sr_no: values.sr_no,
         title: values.title,
         duration: values.duration,
         isPaid: values.isPaid,
@@ -84,14 +82,6 @@ function UpdateVideo({ videoData, refetch }) {
             rules={[{ required: true, message: "Please input video URL!" }]}
           >
             <Input placeholder="Enter video URL" />
-          </Form.Item>
-
-          <Form.Item
-            name="sr_no"
-            label="Serial Number"
-            rules={[{ required: true, message: "Please input serial number!" }]}
-          >
-            <Input type="number" placeholder="Enter serial number" />
           </Form.Item>
 
           <Form.Item

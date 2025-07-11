@@ -28,7 +28,6 @@ function AddPackageVideo({ refetch }) {
         type: "package",
         type_id: contentID,
         url: values.url,
-        sr_no: values.sr_no,
         title: values.title,
         duration: values.duration,
         isPaid: values.isPaid,
@@ -79,14 +78,6 @@ function AddPackageVideo({ refetch }) {
             rules={[{ required: true, message: "Please input video URL!" }]}
           >
             <Input placeholder="Enter video URL" />
-          </Form.Item>
-
-          <Form.Item
-            name="sr_no"
-            label="Serial Number"
-            rules={[{ required: true, message: "Please input serial number!" }]}
-          >
-            <Input type="number" placeholder="Enter serial number" />
           </Form.Item>
 
           <Form.Item

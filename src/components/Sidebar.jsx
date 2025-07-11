@@ -73,6 +73,12 @@ const Sidebar = ({ onClick }) => {
       ],
     },
     {
+      key: "6",
+      icon: <ContainerOutlined />,
+      label: <Link to="/assignments">Assignments</Link>,
+    },
+
+    {
       key: "8",
       icon: <SettingOutlined />,
       label: "Settings",
@@ -80,11 +86,11 @@ const Sidebar = ({ onClick }) => {
         {
           key: "8-1",
           label: <Link to="/coupon">Coupon</Link>,
-        }, 
+        },
         {
           key: "8-2",
           label: <Link to="/change-password">Change Password</Link>,
-        }    
+        },
       ],
     },
     // Add logout as a menu item at the bottom
@@ -93,23 +99,23 @@ const Sidebar = ({ onClick }) => {
       icon: <LogoutOutlined />,
       label: "Logout",
       onClick: handleSignOut,
-      style: { 
-        position: 'absolute', 
+      style: {
+        position: "absolute",
         bottom: 0,
-        width: '100%'
+        width: "100%",
       },
       danger: true, // makes it red (Ant Design feature)
     },
   ];
 
   return (
-    <div style={{ position: 'relative', height: '90vh' }}>
+    <div style={{ position: "relative", height: "90vh" }}>
       <Menu
         mode="inline"
         defaultSelectedKeys={["1"]}
         items={sidebarItems}
         onClick={onClick}
-        style={{ height: 'calc(100% - 64px)' }} 
+        style={{ height: "calc(100% - 64px)" }}
       />
     </div>
   );

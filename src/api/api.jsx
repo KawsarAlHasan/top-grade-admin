@@ -41,7 +41,6 @@ export const signOutAdmin = () => {
   window.location.href = "/login";
 };
 
-
 export const useDashboard = () => {
   const getDashboard = async () => {
     const response = await API.get("/dashboard");
@@ -63,27 +62,30 @@ export const useDashboard = () => {
 };
 
 // get all user
-export const useAllUsers = () => {
-  const getAllUsers = async () => {
-    const response = await API.get("/user/all?page=&limit=&status=");
-    return response.data.data;
+export const useAllUsers = ({ page = 1, limit = 50, status, role } = {}) => {
+  const getUsers = async () => {
+    const response = await API.get("/user/all", {
+      params: { page, limit, status, role },
+    });
+    return response.data;
   };
 
   const {
-    data: allUsers = [],
+    data: response = {},
     isLoading,
     isError,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["allUsers"],
-    queryFn: getAllUsers,
+    queryKey: ["allUsers", page, limit, status, role],
+    queryFn: getUsers,
+    keepPreviousData: true,
   });
 
-  return { allUsers, isLoading, isError, error, refetch };
-};
+  const { data: allUsers = [], pagination = {} } = response;
 
-// /school-order
+  return { allUsers, pagination, isLoading, isError, error, refetch };
+};
 
 // get courses all
 export const useAllCourses = () => {
@@ -105,8 +107,6 @@ export const useAllCourses = () => {
 
   return { allCourses, isLoading, isError, error, refetch };
 };
-
-
 
 // get topics by course id
 export const useTopicsByCoursesID = (coursesID) => {
@@ -356,7 +356,47 @@ export const useSingleVideoPackage = (contentID) => {
   return { singleVideoPackage, isLoading, isError, error, refetch };
 };
 
+// get single School order
+export const useTeacherWithDetails = (teacherId) => {
+  const getData = async () => {
+    const response = await API.get(`/user/teacher/${teacherId}`);
+    return response.data;
+  };
 
+  const {
+    data: teacherDetails = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["teacherDetails", teacherId],
+    queryFn: getData,
+  });
+
+  return { teacherDetails, isLoading, isError, error, refetch };
+};
+
+// get single School order
+export const useStudentWithDetails = (studentId) => {
+  const getData = async () => {
+    const response = await API.get(`/user/student/${studentId}`);
+    return response.data;
+  };
+
+  const {
+    data: studentDetails = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["studentDetails", studentId],
+    queryFn: getData,
+  });
+
+  return { studentDetails, isLoading, isError, error, refetch };
+};
 
 // get all coupon code
 export const useAllCoupons = () => {
@@ -379,8 +419,28 @@ export const useAllCoupons = () => {
   return { allCoupons, isLoading, isError, error, refetch };
 };
 
+// get all assignments
+export const useAllAssignments = () => {
+  const getAllData = async () => {
+    const response = await API.get(
+      `/assignment/all-for-admin?order=desc&status=`
+    );
+    return response.data;
+  };
 
+  const {
+    data: allAssignments = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["allAssignments"],
+    queryFn: getAllData,
+  });
 
+  return { allAssignments, isLoading, isError, error, refetch };
+};
 
 // not use
 // not use
@@ -423,6 +483,3 @@ export const useGlobalData = (table, { status, page = 1, limit = 10 }) => {
     refetch,
   };
 };
-
-
-

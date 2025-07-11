@@ -16,6 +16,7 @@ import {
   EditOutlined,
   EyeOutlined,
   ReloadOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { API, useSchoolOrders } from "../../api/api";
@@ -204,15 +205,18 @@ function SchoolOrders() {
           {record.type === "home_tutoring" && (
             <>
               <div>
-                <span className="font-medium">Time:</span> {record.fromTime} - {record.toTime}
+                <span className="font-medium">Time:</span> {record.fromTime} -{" "}
+                {record.toTime}
               </div>
               <div>
-                <span className="font-medium">Duration:</span> {record.totalHourse}
+                <span className="font-medium">Duration:</span>{" "}
+                {record.totalHourse}
               </div>
             </>
           )}
           <div>
-            <span className="font-medium">Address:</span> {record.city}, {record.block}, Floor {record.floor}, Apt {record.apartment}
+            <span className="font-medium">Address:</span> {record.city},{" "}
+            {record.block}, Floor {record.floor}, Apt {record.apartment}
           </div>
         </div>
       ),
@@ -270,9 +274,9 @@ function SchoolOrders() {
     },
   ];
 
-
   const filteredData = schoolOrders?.filter((item) => {
-    const searchContent = `${item.id} ${item.first_name} ${item.last_name} ${item.email} ${item.contact_number} ${item.type}`.toLowerCase();
+    const searchContent =
+      `${item.id} ${item.first_name} ${item.last_name} ${item.email} ${item.contact_number} ${item.type}`.toLowerCase();
     return searchContent.includes(searchText.toLowerCase());
   });
 
@@ -283,15 +287,26 @@ function SchoolOrders() {
 
   return (
     <div className="container mx-auto px-4 ">
-      
+      <h2 className="text-2xl font-semibold text-center">
+        School Orders Management
+      </h2>
+
       <div className="flex justify-between my-4 ">
-      <h2 className="text-2xl font-semibold">School Orders Management</h2>
         <Search
           placeholder="Search orders..."
           allowClear
           onChange={(e) => setSearchText(e.target.value)}
           style={{ width: 300 }}
         />
+        <Link to="/school-orders/create">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Add New Order
+          </Button>{" "}
+        </Link>
       </div>
 
       <Table
