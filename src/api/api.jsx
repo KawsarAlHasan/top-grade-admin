@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const API = axios.create({
-  // baseURL: "https://education-management-backend-8jm1.onrender.com/api/v1",
-  baseURL: "http://localhost:3001/api/v1",
+  baseURL: "https://education-management-backend-8jm1.onrender.com/api/v1",
+  // baseURL: "http://localhost:3001/api/v1",
 });
 
 API.interceptors.request.use((config) => {
