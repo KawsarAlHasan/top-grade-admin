@@ -241,6 +241,50 @@ export const useSingleSchoolCourse = (schoolCoursesID) => {
   return { singleSCDetail, isLoading, isError, error, refetch };
 };
 
+// get courses all
+export const useAllCoursesForAdmin = () => {
+  const getPreData = async () => {
+    const response = await API.get("/courses-deatials/all-for-admin");
+    return response.data;
+  };
+
+  const {
+    data: courseWithTopics = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["courseWithTopics"],
+    queryFn: getPreData,
+  });
+
+  return { courseWithTopics, isLoading, isError, error, refetch };
+};
+
+// get single School Courses
+export const useCourseDetailsWithContents = (topicsID) => {
+  const getPreData = async () => {
+    const response = await API.get(
+      `/courses-deatials/course-details/${topicsID}`
+    );
+    return response.data;
+  };
+
+  const {
+    data: courseDetailsWithPreData = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["courseDetailsWithPreData", topicsID],
+    queryFn: getPreData,
+  });
+
+  return { courseDetailsWithPreData, isLoading, isError, error, refetch };
+};
+
 // get all Orders
 export const useOrders = ({ page = 1, limit = 50, status } = {}) => {
   const getOrders = async () => {
@@ -286,6 +330,27 @@ export const useSingleOrder = (orderId) => {
   });
 
   return { singleOrder, isLoading, isError, error, refetch };
+};
+
+// get /services-fee/university
+export const useServicesFee = (type) => {
+  const getData = async () => {
+    const response = await API.get(`/services-fee/${type}`);
+    return response?.data?.data;
+  };
+
+  const {
+    data: singleServices = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["singleServices", type],
+    queryFn: getData,
+  });
+
+  return { singleServices, isLoading, isError, error, refetch };
 };
 
 // get all School Orders

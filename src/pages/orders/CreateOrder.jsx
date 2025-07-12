@@ -1,36 +1,28 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   API,
-  useAllCourses,
+  useAllCoursesForAdmin,
   useAllUsers,
-  useCourseContentsByID,
-  useSingleTopicsWithTeacher,
-  useTopicsByCoursesID,
+  useCourseDetailsWithContents,
+  useServicesFee,
 } from "../../api/api";
 import {
   Form,
   Select,
   Button,
-  Spin,
   Card,
   Divider,
-  Checkbox,
   InputNumber,
   Input,
   message,
-  Avatar,
   Typography,
-  Tag,
   Row,
   Col,
+  Radio,
+  Spin,
 } from "antd";
-import {
-  UserOutlined,
-  MailOutlined,
-  StarOutlined,
-  ClockCircleOutlined,
-  BookOutlined,
-} from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 
 const { Text, Title } = Typography;
 const { Option } = Select;
@@ -39,84 +31,208 @@ function CreateOrder() {
   const [form] = Form.useForm();
   const [courseId, setCourseId] = useState(null);
   const [topicId, setTopicId] = useState(null);
-  const [courseDetailsID, setCourseDetailsID] = useState(null);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedType, setSelectedType] = useState(null);
+  const [selectedPrice, setSelectedPrice] = useState(0);
   const [couponData, setCouponData] = useState({
     code: "",
     discount: 0,
+    loading: false,
+    valid: false,
+    applied: false,
   });
+  const [taxRate, setTaxRate] = useState(0);
+  const navigate = useNavigate();
 
   // API hooks
   const { allUsers, isLoading: userLoading } = useAllUsers();
-  const { allCourses, isLoading: courseLoading } = useAllCourses();
-  const { topicsByCoursesID, isLoading: topicsLoading } =
-    useTopicsByCoursesID(courseId);
-  const { topicsWithTeacher, isLoading: topicsWithTeacherLoading } =
-    useSingleTopicsWithTeacher(topicId);
-  const { contentsWithDetailsByID, isLoading: contentsLoading } =
-    useCourseContentsByID(courseDetailsID);
+  const { courseWithTopics, isLoading } = useAllCoursesForAdmin();
+  const { courseDetailsWithPreData, isLoading: courseLoading } =
+    useCourseDetailsWithContents(topicId);
 
-  // Reset dependent fields when parent changes
-  useEffect(() => {
-    if (courseId) {
-      form.setFieldsValue({ topicId: undefined });
-      setTopicId(null);
-      setCourseDetailsID(null);
-    }
-  }, [courseId, form]);
+  const {
+    singleServices,
+    isLoading: servicesLoading,
+    isError,
+    error,
+  } = useServicesFee("university");
 
   useEffect(() => {
-    if (topicId) {
-      form.setFieldsValue({ courseDetailsID: undefined });
-      setCourseDetailsID(null);
+    if (singleServices && singleServices.percentage) {
+      setTaxRate(singleServices.percentage);
     }
-  }, [topicId, form]);
+  }, [singleServices]);
 
-  const handleItemSelect = (type, item) => {
-    setSelectedItems((prev) => {
-      const exists = prev.some((i) => i.type_id === item.id && i.type === type);
-      if (exists) {
-        return prev.filter((i) => !(i.type_id === item.id && i.type === type));
-      }
-      return [
-        ...prev,
-        {
-          type,
-          type_id: item.id,
-          name: item.title || item.name,
-          price: item.price,
-        },
-      ];
+  // Handle course selection
+  const handleCourseChange = (value) => {
+    setCourseId(value);
+    setTopicId(null);
+    setSelectedType(null);
+    setSelectedPrice(0);
+    resetCoupon();
+    form.setFieldsValue({
+      topicId: undefined,
+      packageType: undefined,
+      semesterOrPackage: undefined,
     });
   };
 
+  // Handle topic selection
+  const handleTopicChange = (value) => {
+    setTopicId(value);
+    setSelectedType(null);
+    setSelectedPrice(0);
+    resetCoupon();
+    form.setFieldsValue({
+      packageType: undefined,
+      semesterOrPackage: undefined,
+    });
+  };
+
+  // Handle package type selection
+  const handlePackageTypeChange = (e) => {
+    setSelectedType(e.target.value);
+    setSelectedPrice(0);
+    resetCoupon();
+    form.setFieldsValue({ semesterOrPackage: undefined });
+  };
+
+  // Handle semester/package selection
+  const handleSelectionChange = (value) => {
+    const selectedItem =
+      selectedType === "semester"
+        ? courseDetailsWithPreData?.data?.find(
+            (item) => item.semester?.id === value
+          )?.semester
+        : courseDetailsWithPreData?.data
+            ?.find((item) => item.packages?.some((pkg) => pkg.id === value))
+            ?.packages?.find((pkg) => pkg.id === value);
+
+    setSelectedPrice(selectedItem?.price || 0);
+    resetCoupon();
+  };
+
+  // Reset coupon data
+  const resetCoupon = () => {
+    setCouponData({
+      code: "",
+      discount: 0,
+      loading: false,
+      valid: false,
+      applied: false,
+    });
+  };
+
+  // Validate coupon code
+  const applyCoupon = async () => {
+    if (!couponData.code) {
+      message.warning("Please enter a coupon code");
+      return;
+    }
+
+    if (!selectedPrice) {
+      message.warning("Please select a package first");
+      return;
+    }
+
+    try {
+      setCouponData((prev) => ({ ...prev, loading: true }));
+
+      const response = await API.put("/coupon/check", {
+        code: couponData.code,
+      });
+
+      if (response.data.success) {
+        const coupon = response.data.data;
+        const discountAmount = Math.min(coupon.discount, selectedPrice);
+
+        setCouponData({
+          code: coupon.code,
+          discount: discountAmount,
+          loading: false,
+          valid: true,
+          applied: true,
+        });
+
+        message.success(
+          `Coupon applied successfully! Discount: $${discountAmount}`
+        );
+      } else {
+        setCouponData({
+          ...couponData,
+          loading: false,
+          valid: false,
+          applied: true,
+        });
+        message.error("Invalid coupon code");
+      }
+    } catch (error) {
+      setCouponData({
+        ...couponData,
+        loading: false,
+        valid: false,
+        applied: true,
+      });
+      message.error("Failed to validate coupon");
+      console.error("Coupon validation error:", error);
+    }
+  };
+
+  // Handle coupon code change
+  const handleCouponCodeChange = (e) => {
+    const code = e.target.value;
+    setCouponData({
+      ...couponData,
+      code,
+      applied: false,
+    });
+  };
+
+  // Calculate order totals
   const calculateTotals = () => {
-    const subTotal = selectedItems.reduce((sum, item) => sum + item.price, 0);
-    const totalPrice = subTotal - couponData.discount;
-    return { subTotal, totalPrice };
+    const subTotal = selectedPrice;
+    const discountAmount =
+      couponData.applied && couponData.valid ? couponData.discount : 0;
+    const taxableAmount = subTotal - discountAmount;
+    const taxAmount = taxableAmount * (taxRate / 100);
+    const totalPrice = taxableAmount; // Tax is not added to total
+
+    return {
+      subTotal,
+      discount: discountAmount,
+      tax: taxAmount,
+      totalPrice,
+    };
   };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const { subTotal, totalPrice } = calculateTotals();
+      const { subTotal, discount, tax, totalPrice } = calculateTotals();
 
       const payload = {
         user_id: values.userId,
         c_number: values.contactNumber,
         sub_total: subTotal,
-        coupon_discount: couponData.discount,
-        total_price: totalPrice,
-        coupon_code: couponData.code || null,
-        orders_items: selectedItems.map((item) => ({
-          type: item.type,
-          type_id: item.type_id,
-        })),
+        tax: tax,
+        coupon_discount: discount,
+        total_price: totalPrice, // This doesn't include tax
+        coupon_code:
+          couponData.applied && couponData.valid ? couponData.code : null,
+        orders_items: [
+          {
+            type: selectedType,
+            type_id:
+              selectedType === "semester"
+                ? values.semesterOrPackage
+                : values.semesterOrPackage,
+          },
+        ],
       };
 
       await API.post("/order/create-for-admin", payload);
       message.success("Order created successfully!");
       resetForm();
+      navigate("/university-orders");
     } catch (error) {
       message.error("Failed to create order. Please try again.");
       console.error("Error:", error);
@@ -125,14 +241,30 @@ function CreateOrder() {
 
   const resetForm = () => {
     form.resetFields();
-    setSelectedItems([]);
-    setCouponData({ code: "", discount: 0 });
+    resetCoupon();
     setCourseId(null);
     setTopicId(null);
-    setCourseDetailsID(null);
+    setSelectedType(null);
+    setSelectedPrice(0);
   };
 
   const totals = calculateTotals();
+
+  // Get topics for the selected course
+  const selectedCourse = courseWithTopics?.data?.find(
+    (course) => course.id === courseId
+  );
+  const courseTopics = selectedCourse?.courseTopic || [];
+
+  // Get available semesters and packages
+  const availableSemesters =
+    courseDetailsWithPreData?.data
+      ?.filter((item) => item.semester)
+      .map((item) => item.semester) || [];
+
+  const availablePackages =
+    courseDetailsWithPreData?.data?.flatMap((item) => item.packages || []) ||
+    [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -142,7 +274,7 @@ function CreateOrder() {
 
       <Card className="shadow-lg">
         <Form form={form} layout="vertical">
-          {/* User Information Section */}
+          {/* Student Information Section */}
           <Title level={4} className="mb-4">
             Student Information
           </Title>
@@ -156,7 +288,6 @@ function CreateOrder() {
                 <Select
                   placeholder="Select a student"
                   loading={userLoading}
-                  showSearch
                   optionFilterProp="children"
                 >
                   {allUsers?.map((user) => (
@@ -185,22 +316,21 @@ function CreateOrder() {
 
           {/* Course Selection Section */}
           <Title level={4} className="mb-4">
-            Course Selection
+            Course Information
           </Title>
           <Row gutter={16}>
-            <Col xs={24} md={8}>
+            <Col xs={24} md={12}>
               <Form.Item
                 name="courseId"
-                label="Course"
+                label="Select Course"
                 rules={[{ required: true }]}
               >
                 <Select
-                  placeholder="Select course"
-                  loading={courseLoading}
-                  onChange={setCourseId}
-                  showSearch
+                  placeholder="Select a course"
+                  onChange={handleCourseChange}
+                  loading={isLoading}
                 >
-                  {allCourses?.map((course) => (
+                  {courseWithTopics?.data?.map((course) => (
                     <Option key={course.id} value={course.id}>
                       {course.title}
                     </Option>
@@ -208,21 +338,19 @@ function CreateOrder() {
                 </Select>
               </Form.Item>
             </Col>
-            <Col xs={24} md={8}>
+            <Col xs={24} md={12}>
               <Form.Item
                 name="topicId"
-                label="Topic"
+                label="Select Topic"
                 rules={[{ required: true }]}
               >
                 <Select
-                  placeholder={
-                    courseId ? "Select topic" : "Select course first"
-                  }
+                  placeholder="Select a topic"
+                  onChange={handleTopicChange}
                   disabled={!courseId}
-                  loading={topicsLoading}
-                  onChange={setTopicId}
+                  loading={isLoading}
                 >
-                  {topicsByCoursesID?.data?.courseTopic?.map((topic) => (
+                  {courseTopics.map((topic) => (
                     <Option key={topic.id} value={topic.id}>
                       {topic.name}
                     </Option>
@@ -230,226 +358,134 @@ function CreateOrder() {
                 </Select>
               </Form.Item>
             </Col>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name="courseDetailsID"
-                label="Instructor"
-                rules={[{ required: true }]}
-              >
-                <Select
-                  placeholder={
-                    topicId ? "Select instructor" : "Select topic first"
-                  }
-                  disabled={!topicId}
-                  loading={topicsWithTeacherLoading}
-                  onChange={setCourseDetailsID}
-                  optionLabelProp="label"
-                >
-                  {topicsWithTeacher?.data?.teachers?.map((teacher) => (
-                    <Option
-                      key={teacher.id}
-                      value={teacher.id}
-                      label={`${teacher.first_name} ${teacher.last_name}`}
+          </Row>
+
+          {/* Semester/Package Selection Section */}
+          {topicId && (
+            <>
+              <Divider />
+              <Title level={4} className="mb-4">
+                Package Information
+              </Title>
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    name="packageType"
+                    label="Select Package Type"
+                    rules={[{ required: true }]}
+                  >
+                    <Radio.Group onChange={handlePackageTypeChange}>
+                      <Radio value="semester">Semester</Radio>
+                      <Radio value="package">Package</Radio>
+                    </Radio.Group>
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  {selectedType === "semester" && (
+                    <Form.Item
+                      name="semesterOrPackage"
+                      label="Select Semester"
+                      rules={[{ required: true }]}
                     >
-                      <div className="flex items-start">
-                        <Avatar
-                          src={teacher.profile_pic}
-                          icon={<UserOutlined />}
-                          className="mr-3"
-                        />
-                        <div>
-                          <div className="font-medium">
-                            {teacher.first_name} {teacher.last_name}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            <MailOutlined className="mr-1" /> {teacher.email}
-                          </div>
-                          <div className="mt-1">
-                            <Tag
-                              icon={<BookOutlined />}
-                              color="blue"
-                              className="mr-1"
-                            >
-                              {teacher.total_chapter}
-                            </Tag>
-                            <Tag
-                              icon={<ClockCircleOutlined />}
-                              color="purple"
-                              className="mr-1"
-                            >
-                              {teacher.total_duration}
-                            </Tag>
-                            <Tag icon={<StarOutlined />} color="gold">
-                              {teacher.average_rating}
-                            </Tag>
-                          </div>
-                        </div>
-                      </div>
-                    </Option>
-                  ))}
-                </Select>
+                      <Select
+                        placeholder="Select a semester"
+                        onChange={handleSelectionChange}
+                        loading={courseLoading}
+                      >
+                        {availableSemesters.map((semester) => (
+                          <Option key={semester.id} value={semester.id}>
+                            {semester.title} (${semester.price})
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  )}
+                  {selectedType === "package" && (
+                    <Form.Item
+                      name="semesterOrPackage"
+                      label="Select Package"
+                      rules={[{ required: true }]}
+                    >
+                      <Select
+                        placeholder="Select a package"
+                        onChange={handleSelectionChange}
+                        loading={courseLoading}
+                      >
+                        {availablePackages.map((pkg) => (
+                          <Option key={pkg.id} value={pkg.id}>
+                            {pkg.title} (${pkg.price})
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  )}
+                </Col>
+              </Row>
+            </>
+          )}
+
+          <Divider />
+
+          {/* Coupon Section */}
+          <Title level={4} className="mb-4">
+            Coupon Information
+          </Title>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item label="Coupon Code">
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <Input
+                    placeholder="Enter coupon code"
+                    value={couponData.code}
+                    onChange={handleCouponCodeChange}
+                  />
+                  <Button
+                    type="primary"
+                    onClick={applyCoupon}
+                    loading={couponData.loading}
+                    disabled={!couponData.code || !selectedPrice}
+                  >
+                    Apply Coupon
+                  </Button>
+                </div>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item label="Discount Amount ($)">
+                <InputNumber
+                  placeholder={
+                    couponData.applied ? "No discount" : "Apply coupon first"
+                  }
+                  value={couponData.applied ? couponData.discount : 0}
+                  disabled
+                  className="w-full"
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          {/* Packages & Semesters Section */}
-          {contentsLoading ? (
-            <Spin tip="Loading course contents..." />
-          ) : (
-            contentsWithDetailsByID && (
-              <>
-                <Divider />
-                <Title level={4} className="mb-4">
-                  Available Packages
-                </Title>
-                <Row gutter={16}>
-                  {contentsWithDetailsByID.packages?.map((pkg) => (
-                    <Col xs={24} md={12} key={`pkg-${pkg.id}`}>
-                      <Card
-                        hoverable
-                        className={`mb-4 ${
-                          selectedItems.some(
-                            (i) => i.type_id === pkg.id && i.type === "packages"
-                          )
-                            ? "border-blue-500 border-2"
-                            : ""
-                        }`}
-                        onClick={() => handleItemSelect("packages", pkg)}
-                      >
-                        <div className="flex justify-between">
-                          <div>
-                            <Title level={5}>{pkg.title}</Title>
-                            <Text>{pkg.description}</Text>
-                            <div className="mt-2">
-                              <Tag icon={<ClockCircleOutlined />}>
-                                {pkg.duration}
-                              </Tag>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <Text strong className="text-lg">
-                              ${pkg.price}
-                            </Text>
-                            <Checkbox
-                              checked={selectedItems.some(
-                                (i) =>
-                                  i.type_id === pkg.id && i.type === "packages"
-                              )}
-                              className="mt-2"
-                            />
-                          </div>
-                        </div>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-
-                <Divider />
-                <Title level={4} className="mb-4">
-                  Available Semesters
-                </Title>
-                {contentsWithDetailsByID.semester && (
-                  <Card
-                    hoverable
-                    className={`mb-6 ${
-                      selectedItems.some(
-                        (i) =>
-                          i.type_id === contentsWithDetailsByID.semester.id &&
-                          i.type === "semester"
-                      )
-                        ? "border-blue-500 border-2"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleItemSelect(
-                        "semester",
-                        contentsWithDetailsByID.semester
-                      )
-                    }
-                  >
-                    <div className="flex justify-between">
-                      <div>
-                        <Title level={5}>
-                          {contentsWithDetailsByID.semester.title}
-                        </Title>
-                        <Text>
-                          {contentsWithDetailsByID.semester.description}
-                        </Text>
-                        <div className="mt-2">
-                          <Tag icon={<ClockCircleOutlined />}>
-                            {contentsWithDetailsByID.semester.duration}
-                          </Tag>
-                          <Tag icon={<BookOutlined />} className="ml-1">
-                            {contentsWithDetailsByID.semester.chapter?.length}{" "}
-                            Chapters
-                          </Tag>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Text strong className="text-lg">
-                          ${contentsWithDetailsByID.semester.price}
-                        </Text>
-                        <Checkbox
-                          checked={selectedItems.some(
-                            (i) =>
-                              i.type_id ===
-                                contentsWithDetailsByID.semester.id &&
-                              i.type === "semester"
-                          )}
-                          className="mt-2"
-                        />
-                      </div>
-                    </div>
-                  </Card>
-                )}
-              </>
-            )
-          )}
-
-          {/* Coupon & Summary Section */}
+          {/* Order Summary Section */}
           <Divider />
           <Title level={4} className="mb-4">
-            Payment Information
+            Order Summary
           </Title>
-          <Row gutter={16}>
-            <Col xs={24} md={12}>
-              <div className="mb-4">
-                <Form.Item label="Coupon Code">
-                  <Input
-                    placeholder="Enter coupon code"
-                    value={couponData.code}
-                    onChange={(e) =>
-                      setCouponData({ ...couponData, code: e.target.value })
-                    }
-                  />
-                </Form.Item>
-              </div>
-            </Col>
-            <Col xs={24} md={12}>
-              <div className="mb-4">
-                <Form.Item label="Discount Amount ($)">
-                  <InputNumber
-                    placeholder="Enter discount"
-                    min={0}
-                    value={couponData.discount}
-                    onChange={(value) =>
-                      setCouponData({ ...couponData, discount: value || 0 })
-                    }
-                    className="w-full"
-                  />
-                </Form.Item>
-              </div>
-            </Col>
-          </Row>
-
           <Card className="mb-6">
             <div className="flex justify-between mb-2">
-              <Text>Subtotal:</Text>
-              <Text>${totals.subTotal.toFixed(2)}</Text>
+              <Text>
+                Selected {selectedType === "semester" ? "Semester" : "Package"}{" "}
+                Price:
+              </Text>
+              <Text>${selectedPrice.toFixed(2)}</Text>
             </div>
+            {couponData.applied && (
+              <div className="flex justify-between mb-2">
+                <Text>Discount:</Text>
+                <Text type="danger">-${couponData.discount.toFixed(2)}</Text>
+              </div>
+            )}
             <div className="flex justify-between mb-2">
-              <Text>Discount:</Text>
-              <Text type="danger">-${couponData.discount.toFixed(2)}</Text>
+              <Text>Tax ({taxRate}%):</Text>
+              <Text>${totals.tax.toFixed(2)}</Text>
             </div>
             <Divider className="my-2" />
             <div className="flex justify-between">
@@ -458,32 +494,12 @@ function CreateOrder() {
             </div>
           </Card>
 
-          {/* Selected Items */}
-          {selectedItems.length > 0 && (
-            <div className="mb-6">
-              <Title level={5} className="mb-2">
-                Selected Items
-              </Title>
-              {selectedItems.map((item) => (
-                <div
-                  key={`${item.type}-${item.type_id}`}
-                  className="flex justify-between py-2 border-b"
-                >
-                  <Text>
-                    {item.name} ({item.type})
-                  </Text>
-                  <Text>${item.price}</Text>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* Submit Button */}
           <Button
             type="primary"
             size="large"
             onClick={handleSubmit}
-            disabled={selectedItems.length === 0}
+            disabled={!courseId || !topicId || !selectedType || !selectedPrice}
             block
           >
             Create Order
