@@ -89,6 +89,10 @@ const Sidebar = ({ onClick }) => {
         },
         {
           key: "8-2",
+          label: <Link to="/services-fees">Services Fees</Link>,
+        },
+        {
+          key: "8-3",
           label: <Link to="/change-password">Change Password</Link>,
         },
       ],

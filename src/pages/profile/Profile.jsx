@@ -1,5 +1,15 @@
-import React from 'react';
-import { Card, Avatar, Tag, Row, Col, Divider, Button, Statistic, Skeleton } from 'antd';
+import React from "react";
+import {
+  Card,
+  Avatar,
+  Tag,
+  Row,
+  Col,
+  Divider,
+  Button,
+  Statistic,
+  Skeleton,
+} from "antd";
 import {
   UserOutlined,
   MailOutlined,
@@ -10,14 +20,13 @@ import {
   LoginOutlined,
   CheckCircleOutlined,
   ProjectOutlined,
-  DashboardOutlined
-} from '@ant-design/icons';
-import moment from 'moment';
-import { Link } from 'react-router-dom';
-import { useAdminProfile } from '../../api/api';
+  DashboardOutlined,
+} from "@ant-design/icons";
+import moment from "moment";
+import { Link } from "react-router-dom";
+import { useAdminProfile } from "../../api/api";
 
 function Profile() {
-
   const { admin: data, isLoading, isError, error, refetch } = useAdminProfile();
 
   if (isLoading) {
@@ -42,23 +51,23 @@ function Profile() {
   }
 
   const admin = {
-    "id": 1,
-    "name": "John Doe",
-    "email": "admin@example.com",
-    "avatar": "https://randomuser.me/api/portraits/men/1.jpg",
-    "role": "Super Admin",
-    "joinDate": "2022-01-15",
-    "lastLogin": "2023-06-20T14:30:22Z",
-    "status": "active",
-    "contact": {
-      "phone": "+1 (555) 123-4567",
-      "address": "123 Admin St, Suite 100, Tech City"
+    id: 1,
+    name: "John Doe",
+    email: "admin@example.com",
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    role: "Super Admin",
+    joinDate: "2022-01-15",
+    lastLogin: "2023-06-20T14:30:22Z",
+    status: "active",
+    contact: {
+      phone: "+1 (555) 123-4567",
+      address: "123 Admin St, Suite 100, Tech City",
     },
-    "stats": {
-      "totalLogins": 1245,
-      "tasksCompleted": 89,
-      "projects": 15
-    }
+    stats: {
+      totalLogins: 1245,
+      tasksCompleted: 89,
+      projects: 15,
+    },
   };
 
   return (
@@ -77,7 +86,7 @@ function Profile() {
               <h2 className="text-2xl font-semibold mb-1">{admin.name}</h2>
               <Tag
                 icon={<SafetyCertificateOutlined />}
-                color={admin.status === 'active' ? 'success' : 'error'}
+                color={admin.status === "active" ? "success" : "error"}
                 className="mb-4"
               >
                 {admin.role}
@@ -100,16 +109,20 @@ function Profile() {
                 </div>
                 <div className="flex items-center">
                   <ClockCircleOutlined className="text-gray-500 mr-2" />
-                  <span>Joined {moment(admin.joinDate).format('MMMM Do, YYYY')}</span>
+                  <span>
+                    Joined {moment(admin.joinDate).format("MMMM Do, YYYY")}
+                  </span>
                 </div>
               </div>
 
               <Divider className="my-4" />
 
-              <Button type="primary" block className="mb-2">
+              {/* <Button type="primary" block className="mb-2">
                 Edit Profile
-              </Button>
-              <Link to="/change-password" ><Button block>Change Password</Button></Link>
+              </Button> */}
+              <Link to="/change-password">
+                <Button block>Change Password</Button>
+              </Link>
             </div>
           </Card>
         </Col>
@@ -162,25 +175,32 @@ function Profile() {
                     <div>
                       <p className="font-medium mb-1">Logged in to dashboard</p>
                       <p className="text-gray-500 text-sm">
-                        {moment(admin.lastLogin).fromNow()} • {moment(admin.lastLogin).format('h:mm A')}
+                        {moment(admin.lastLogin).fromNow()} •{" "}
+                        {moment(admin.lastLogin).format("h:mm A")}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <ProjectOutlined className="text-green-500 text-lg mr-3 mt-1" />
                     <div>
-                      <p className="font-medium mb-1">Created new project "Admin Portal Redesign"</p>
+                      <p className="font-medium mb-1">
+                        Created new project "Admin Portal Redesign"
+                      </p>
                       <p className="text-gray-500 text-sm">
-                        {moment().subtract(2, 'days').fromNow()} • {moment().subtract(2, 'days').format('MMM Do')}
+                        {moment().subtract(2, "days").fromNow()} •{" "}
+                        {moment().subtract(2, "days").format("MMM Do")}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <CheckCircleOutlined className="text-purple-500 text-lg mr-3 mt-1" />
                     <div>
-                      <p className="font-medium mb-1">Completed user management module</p>
+                      <p className="font-medium mb-1">
+                        Completed user management module
+                      </p>
                       <p className="text-gray-500 text-sm">
-                        {moment().subtract(5, 'days').fromNow()} • {moment().subtract(5, 'days').format('MMM Do')}
+                        {moment().subtract(5, "days").fromNow()} •{" "}
+                        {moment().subtract(5, "days").format("MMM Do")}
                       </p>
                     </div>
                   </div>
@@ -195,7 +215,9 @@ function Profile() {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">Two-factor Authentication</p>
-                      <p className="text-gray-500 text-sm">Add an extra layer of security</p>
+                      <p className="text-gray-500 text-sm">
+                        Add an extra layer of security
+                      </p>
                     </div>
                     <Tag color="orange">Not Enabled</Tag>
                   </div>
@@ -203,11 +225,12 @@ function Profile() {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">Email Notifications</p>
-                      <p className="text-gray-500 text-sm">Receive important updates</p>
+                      <p className="text-gray-500 text-sm">
+                        Receive important updates
+                      </p>
                     </div>
                     <Tag color="green">Enabled</Tag>
                   </div>
-                 
                 </div>
               </Card>
             </Col>

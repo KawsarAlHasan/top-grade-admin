@@ -26,6 +26,7 @@ import TeacherDetails from "../pages/users/teachers/TeacherDetails";
 import Assignments from "../pages/assignments/Assignments";
 import StudentDetail from "../pages/users/students/StudentDetail";
 import StudentsData from "../pages/users/students/StudentsData";
+import Tax from "../pages/Tax";
 
 export const router = createBrowserRouter([
   {
@@ -131,6 +132,10 @@ export const router = createBrowserRouter([
       {
         path: "/coupon",
         element: <Coupon />,
+      },
+      {
+        path: "/services-fees",
+        element: <Tax />,
       },
     ],
   },
