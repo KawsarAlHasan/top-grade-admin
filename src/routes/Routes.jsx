@@ -21,11 +21,11 @@ import ChangePassword from "../pages/profile/ChangePassword";
 import Coupon from "../pages/settings/Coupon";
 import CreateOrder from "../pages/orders/CreateOrder";
 import CreateSchoolOrder from "../pages/schoolOrders/CreateSchoolOrder";
-import Students from "../pages/users/students/students";
 import Teachers from "../pages/users/teachers/Teachers";
 import TeacherDetails from "../pages/users/teachers/TeacherDetails";
 import Assignments from "../pages/assignments/Assignments";
 import StudentDetail from "../pages/users/students/StudentDetail";
+import StudentsData from "../pages/users/students/StudentsData";
 
 export const router = createBrowserRouter([
   {
@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/students",
-        element: <Students />,
+        element: <StudentsData />,
       },
       {
         path: "/students/:studentId",
