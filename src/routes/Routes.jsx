@@ -23,9 +23,9 @@ import CreateOrder from "../pages/orders/CreateOrder";
 import CreateSchoolOrder from "../pages/schoolOrders/CreateSchoolOrder";
 import Students from "../pages/users/students/students";
 import Teachers from "../pages/users/teachers/Teachers";
-import StudentDetails from "../pages/users/students/StudentDetails";
 import TeacherDetails from "../pages/users/teachers/TeacherDetails";
 import Assignments from "../pages/assignments/Assignments";
+import StudentDetail from "../pages/users/students/StudentDetail";
 
 export const router = createBrowserRouter([
   {
@@ -82,7 +82,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/students/:studentId",
-        element: <StudentDetails />,
+        element: <StudentDetail />,
       },
       {
         path: "/teachers",
