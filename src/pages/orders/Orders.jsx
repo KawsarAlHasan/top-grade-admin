@@ -152,13 +152,6 @@ function Order() {
 
   const columns = [
     {
-      title: "Serial",
-      dataIndex: "id",
-      key: "id",
-      render: (text, record, index) =>
-        index + 1 + (filters.page - 1) * filters.limit,
-    },
-    {
       title: "Order Id",
       dataIndex: "order_id",
       key: "order_id",
@@ -182,6 +175,11 @@ function Order() {
       title: "Total Price",
       dataIndex: "total_price",
       key: "total_price",
+    },
+    {
+      title: "Tax",
+      dataIndex: "tax",
+      key: "tax",
     },
     {
       title: "Phone Number",

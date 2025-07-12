@@ -29,12 +29,12 @@ const Sidebar = ({ onClick }) => {
       label: "Users",
       children: [
         {
-          key: "3-1",
-          label: <Link to="/students">Students</Link>,
-        },
-        {
           key: "3-2",
           label: <Link to="/teachers">Teachers</Link>,
+        },
+        {
+          key: "3-1",
+          label: <Link to="/students">Students</Link>,
         },
         {
           key: "3-3",

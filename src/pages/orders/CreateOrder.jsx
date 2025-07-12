@@ -376,7 +376,7 @@ function CreateOrder() {
                   >
                     <Radio.Group onChange={handlePackageTypeChange}>
                       <Radio value="semester">Semester</Radio>
-                      <Radio value="package">Package</Radio>
+                      <Radio value="packages">Package</Radio>
                     </Radio.Group>
                   </Form.Item>
                 </Col>

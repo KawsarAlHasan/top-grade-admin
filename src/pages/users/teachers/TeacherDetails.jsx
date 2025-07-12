@@ -11,6 +11,13 @@ import {
   Skeleton,
   Alert,
   Button,
+  Statistic,
+  Row,
+  Col,
+  Descriptions,
+  Badge,
+  Collapse,
+  Space,
 } from "antd";
 import {
   UserOutlined,
@@ -22,13 +29,24 @@ import {
   FileOutlined,
   DollarOutlined,
   ReloadOutlined,
+  PercentageOutlined,
+  IdcardOutlined,
+  SolutionOutlined,
+  CheckCircleOutlined,
+  FieldNumberOutlined,
+  CalendarOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
+
 import { useTeacherWithDetails } from "../../../api/api";
 
 const { TabPane } = Tabs;
+const { Panel } = Collapse;
+const { Countdown } = Statistic;
 
 function TeacherDetails() {
   const { teacherId } = useParams();
+  // In a real app, you would use your actual API hook here
   const { teacherDetails, isLoading, isError, error, refetch } =
     useTeacherWithDetails(teacherId);
 
@@ -64,18 +82,35 @@ function TeacherDetails() {
   }
 
   const teacher = teacherDetails?.data?.user;
-  const courses = teacherDetails?.data?.courses || [];
+  const homeTutoring = teacherDetails?.data?.homeTutoring || [];
   const courseDetails = teacherDetails?.data?.courseDetails || [];
   const assignments = teacherDetails?.data?.assignments || [];
 
-  // Group course details by course name
-  const groupedCourses = courseDetails.reduce((acc, course) => {
-    if (!acc[course.course_name]) {
-      acc[course.course_name] = [];
+  // Group assignments by status
+  const groupedAssignments = assignments.reduce((acc, assignment) => {
+    if (!acc[assignment.status]) {
+      acc[assignment.status] = [];
     }
-    acc[course.course_name].push(course);
+    acc[assignment.status].push(assignment);
     return acc;
   }, {});
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending":
+        return "orange";
+      case "Delivered":
+        return "green";
+      case "Assigned":
+        return "blue";
+      default:
+        return "gray";
+    }
+  };
+
+  const calculateTotalWithTax = (amount, tax) => {
+    return amount + amount * (tax / 100);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -117,6 +152,24 @@ function TeacherDetails() {
 
             <p className="text-gray-700 mb-6">{teacher.description}</p>
 
+            <Row gutter={16} className="mb-4">
+              <Col span={12}>
+                <Statistic
+                  title="Hourly Rate"
+                  value={teacher.price_per_hour}
+                  prefix={<DollarOutlined />}
+                  suffix="/hr"
+                />
+              </Col>
+              <Col span={12}>
+                <Statistic
+                  title="Total Assignments"
+                  value={assignments.length}
+                  prefix={<FileOutlined />}
+                />
+              </Col>
+            </Row>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex items-center">
                 <MailOutlined className="text-blue-500 mr-2" />
@@ -131,9 +184,9 @@ function TeacherDetails() {
                 <span className="text-gray-600">{teacher.country}</span>
               </div>
               <div className="flex items-center">
-                <DollarOutlined className="text-blue-500 mr-2" />
+                <IdcardOutlined className="text-blue-500 mr-2" />
                 <span className="text-gray-600">
-                  ${teacher.price_per_hour}/hour
+                  UID: {teacher.uid || "N/A"}
                 </span>
               </div>
             </div>
@@ -152,14 +205,126 @@ function TeacherDetails() {
               controls
               className="w-full h-auto rounded-lg"
               src={teacher.intro_video}
+              poster={teacher.profile_pic}
             />
           </div>
         </div>
       )}
 
-      {/* Tabs Section */}
+      {/* Main Content Tabs */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <Tabs defaultActiveKey="1" className="p-4">
+        <Tabs defaultActiveKey="assignments">
+          {/* Assignments Tab */}
+          <TabPane
+            tab={
+              <span>
+                <FileOutlined />
+                Assignments ({assignments.length})
+              </span>
+            }
+            key="assignments"
+          >
+            {Object.entries(groupedAssignments).map(([status, assignments]) => (
+              <div key={status} className="mb-8">
+                <h3 className="text-lg font-semibold mb-4 capitalize">
+                  <Badge
+                    count={assignments.length}
+                    style={{ backgroundColor: getStatusColor(status) }}
+                    className="mr-2"
+                  />
+                  {status} Assignments
+                </h3>
+
+                <Collapse accordion className="assignment-collapse">
+                  {assignments.map((assignment) => (
+                    <Panel
+                      key={assignment.id}
+                      header={
+                        <div className="flex justify-between items-center w-full">
+                          <span>
+                            <strong>Assignment #{assignment.id}</strong> -{" "}
+                            {assignment.course_name}
+                          </span>
+                          <Space>
+                            <Tag color={getStatusColor(assignment.status)}>
+                              {assignment.status}
+                            </Tag>
+                            {assignment.lowest_bid && (
+                              <Tag icon={<DollarOutlined />} color="green">
+                                $
+                                {calculateTotalWithTax(
+                                  assignment.lowest_bid,
+                                  assignment.tax
+                                ).toFixed(2)}
+                              </Tag>
+                            )}
+                          </Space>
+                        </div>
+                      }
+                      extra={<CalendarOutlined className="text-gray-500" />}
+                    >
+                      <Descriptions bordered column={1} size="small">
+                        <Descriptions.Item label="Course Type">
+                          {assignment.courses_type}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Course ID">
+                          {assignment.courses_id}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Student ID">
+                          {assignment.student_id}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Description">
+                          {assignment.description || "No description provided"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Level">
+                          {assignment.lavel || "Not specified"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Due Date">
+                          {assignment.date}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Bid Time">
+                          {new Date(assignment.bid_time).toLocaleString()}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Bid Details">
+                          <Space direction="vertical">
+                            <div>
+                              <InfoCircleOutlined /> Is Bid:{" "}
+                              {assignment.is_bid ? "Yes" : "No"}
+                            </div>
+                            <div>
+                              <DollarOutlined /> Lowest Bid: $
+                              {assignment.lowest_bid}
+                            </div>
+                            <div>
+                              <PercentageOutlined /> Tax: {assignment.tax}%
+                            </div>
+                            <div>
+                              Total: $
+                              {calculateTotalWithTax(
+                                assignment.lowest_bid,
+                                assignment.tax
+                              ).toFixed(2)}
+                            </div>
+                          </Space>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Winning Bidder">
+                          {assignment.winning_bidder ? (
+                            <Tag icon={<CheckCircleOutlined />} color="green">
+                              Teacher #{assignment.winning_bidder}
+                            </Tag>
+                          ) : (
+                            <Tag color="orange">Not assigned yet</Tag>
+                          )}
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </Panel>
+                  ))}
+                </Collapse>
+              </div>
+            ))}
+          </TabPane>
+
+          {/* Courses Tab */}
           <TabPane
             tab={
               <span>
@@ -167,96 +332,60 @@ function TeacherDetails() {
                 Courses
               </span>
             }
-            key="1"
+            key="courses"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(groupedCourses).map(([courseName, details]) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {courseDetails.map((course) => (
                 <Card
-                  key={courseName}
-                  title={courseName}
-                  className="shadow-sm hover:shadow-md transition-shadow"
+                  key={course.id}
+                  title={course.title || "Untitled Course"}
+                  className="shadow-sm hover:shadow-md"
                 >
-                  <div className="flex items-center mb-2">
-                    <img
-                      src={
-                        courses.find((c) => c.title === courseName)?.image ||
-                        "https://via.placeholder.com/50"
-                      }
-                      alt={courseName}
-                      className="w-12 h-12 object-cover mr-3"
-                    />
-                    <span className="font-medium">{courseName}</span>
-                  </div>
-                  <Divider className="my-3" />
-                  <List
-                    dataSource={details}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <div className="w-full">
-                          <div className="flex justify-between">
-                            <span className="font-medium">
-                              Topic #{item.course_topic_id}
-                            </span>
-                            <Tag color="blue">{item.total_chapter}</Tag>
-                          </div>
-                          <div className="flex items-center text-gray-500 text-sm mt-1">
-                            <ClockCircleOutlined className="mr-1" />
-                            {item.total_duration}
-                          </div>
-                        </div>
-                      </List.Item>
-                    )}
-                  />
+                  <Descriptions column={1} size="small">
+                    <Descriptions.Item label="Topic">
+                      {course.coursse_topic_name}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Duration">
+                      {course.total_duration}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Chapters">
+                      {course.total_chapter}
+                    </Descriptions.Item>
+                  </Descriptions>
                 </Card>
               ))}
             </div>
           </TabPane>
 
+          {/* Home Tutoring Tab */}
           <TabPane
             tab={
               <span>
-                <FileOutlined />
-                Assignments
+                <SolutionOutlined />
+                Home Tutoring
               </span>
             }
-            key="2"
+            key="tutoring"
           >
-            <List
-              itemLayout="vertical"
-              dataSource={assignments}
-              renderItem={(assignment) => (
-                <List.Item>
-                  <div className="w-full p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-medium">
-                          {assignment.course_name} - {assignment.courses_type}
-                        </h3>
-                        <p className="text-gray-600 mb-2">
-                          {assignment.description}
-                        </p>
-                        <div className="flex items-center text-gray-500 text-sm">
-                          <span className="mr-3">
-                            Due:{" "}
-                            {new Date(assignment.date).toLocaleDateString()}
-                          </span>
-                          {assignment.lowest_bid && (
-                            <span>Lowest bid: ${assignment.lowest_bid}</span>
-                          )}
-                        </div>
-                      </div>
-                      <Tag
-                        color={
-                          assignment.status === "Pending" ? "orange" : "green"
-                        }
-                      >
-                        {assignment.status}
-                      </Tag>
-                    </div>
-                  </div>
-                </List.Item>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {homeTutoring.map((subject) => (
+                <Card
+                  key={subject.id}
+                  cover={
+                    <img
+                      alt={subject.title}
+                      src={subject.image}
+                      className="h-32 object-cover"
+                    />
+                  }
+                >
+                  <Card.Meta
+                    title={subject.title}
+                    description="Available for home tutoring"
+                  />
+                </Card>
+              ))}
+            </div>
           </TabPane>
         </Tabs>
       </div>
