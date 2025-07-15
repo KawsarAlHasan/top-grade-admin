@@ -21,6 +21,7 @@ import {
 import { Link } from "react-router-dom";
 import { API, useAllSchoolCourses } from "../../api/api";
 import AddSchoolCourse from "./AddSchoolCourse";
+import EditSchoolCourse from "./EditSchoolCourse";
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -185,6 +186,13 @@ function SchoolCourses() {
             onClick={() => triggerModal(record)}
           />
         </div>
+      ),
+    },
+    {
+      title: "Edit",
+      key: "edit",
+      render: (_, record) => (
+        <EditSchoolCourse course={record} refetch={refetch} />
       ),
     },
     {

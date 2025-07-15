@@ -36,6 +36,8 @@ import {
   FieldNumberOutlined,
   CalendarOutlined,
   InfoCircleOutlined,
+  PieChartOutlined,
+  MoneyCollectOutlined,
 } from "@ant-design/icons";
 
 import { useTeacherWithDetails } from "../../../api/api";
@@ -46,7 +48,6 @@ const { Countdown } = Statistic;
 
 function TeacherDetails() {
   const { teacherId } = useParams();
-  // In a real app, you would use your actual API hook here
   const { teacherDetails, isLoading, isError, error, refetch } =
     useTeacherWithDetails(teacherId);
 
@@ -82,6 +83,11 @@ function TeacherDetails() {
   }
 
   const teacher = teacherDetails?.data?.user;
+  const totalIncome = teacherDetails?.data?.totalIncome || {
+    total_net_payment: 0,
+    total_tax: 0,
+    total_total_amount: 0,
+  };
   const homeTutoring = teacherDetails?.data?.homeTutoring || [];
   const courseDetails = teacherDetails?.data?.courseDetails || [];
   const assignments = teacherDetails?.data?.assignments || [];
@@ -151,6 +157,48 @@ function TeacherDetails() {
             </div>
 
             <p className="text-gray-700 mb-6">{teacher.description}</p>
+
+            {/* Income Summary Section - Added this new section */}
+            <div className="mb-6">
+              <Divider orientation="left" orientationMargin={0}>
+                <h3 className="text-lg font-semibold">Income Summary</h3>
+              </Divider>
+              <Row gutter={16} className="mb-4">
+                <Col span={8}>
+                  <Card>
+                    <Statistic
+                      title="Total Earnings"
+                      value={totalIncome.total_total_amount.toFixed(2)}
+                      prefix={<MoneyCollectOutlined />}
+                      valueStyle={{ color: "#52c41a" }}
+                      suffix="$"
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card>
+                    <Statistic
+                      title="Net Payment"
+                      value={totalIncome.total_net_payment.toFixed(2)}
+                      prefix={<PieChartOutlined />}
+                      valueStyle={{ color: "#1890ff" }}
+                      suffix="$"
+                    />
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card>
+                    <Statistic
+                      title="Total Tax"
+                      value={totalIncome.total_tax.toFixed(2)}
+                      prefix={<PercentageOutlined />}
+                      valueStyle={{ color: "#faad14" }}
+                      suffix="$"
+                    />
+                  </Card>
+                </Col>
+              </Row>
+            </div>
 
             <Row gutter={16} className="mb-4">
               <Col span={12}>
@@ -304,6 +352,9 @@ function TeacherDetails() {
                                 assignment.lowest_bid,
                                 assignment.tax
                               ).toFixed(2)}
+                            </div>
+                            <div>
+                              Net Pament: ${assignment.net_payment || 0}
                             </div>
                           </Space>
                         </Descriptions.Item>

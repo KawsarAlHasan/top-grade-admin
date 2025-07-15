@@ -34,11 +34,37 @@ function Users() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  // Role change state
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
+  const [isRolesModalVisible, setIsRolesModalVisible] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("");
+
+  // Status change state
   const [selectedUser, setSelectedUser] = useState(null);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
 
+  const roleOptions = ["Student", "Teacher"];
   const statusOptions = ["Active", "Deactive", "Block", "Pending"];
+
+  const handleRoleChange = async () => {
+    if (!selectedUserRole || !selectedRole) return;
+
+    try {
+      setIsUpdatingStatus(true);
+      await API.put(`/user/role/${selectedUserRole.id}`, {
+        role: selectedRole,
+      });
+      message.success(`User role updated to ${selectedRole}`);
+      refetch();
+      setIsRolesModalVisible(false);
+    } catch (error) {
+      message.error(error.response?.data?.message || "Failed to update role");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
 
   const handleStatusChange = async () => {
     if (!selectedUser || !selectedStatus) return;
@@ -62,7 +88,6 @@ function Users() {
     setDeleteLoading(true);
     try {
       await API.delete(`/user/delete/${id}`);
-      console.log(id, "id");
       message.success("User deleted successfully");
       refetch();
     } catch (error) {
@@ -84,6 +109,12 @@ function Users() {
         handleDelete(id);
       },
     });
+  };
+
+  const triggerRoleModal = (user) => {
+    setSelectedUserRole(user);
+    setSelectedRole(user.role);
+    setIsRolesModalVisible(true);
   };
 
   const triggerModal = (user) => {
@@ -141,15 +172,21 @@ function Users() {
         </Space>
       ),
     },
-
     {
       title: "Role",
       dataIndex: "role",
       key: "role",
-      render: (role) => (
-        <Tag color={role === "Teacher" ? "blue" : "green"}>
-          {role.toUpperCase()}
-        </Tag>
+      render: (role, record) => (
+        <div className="flex items-center">
+          <Tag color={role === "Teacher" ? "blue" : "green"}>
+            {role.toUpperCase()}
+          </Tag>
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => triggerRoleModal(record)}
+          />
+        </div>
       ),
     },
     {
@@ -238,6 +275,49 @@ function Users() {
         />
       </Spin>
 
+      {/* Role Change Modal */}
+      <Modal
+        title="Change User Role"
+        visible={isRolesModalVisible}
+        onCancel={() => setIsRolesModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsRolesModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={isUpdatingStatus}
+            onClick={handleRoleChange}
+          >
+            Update Role
+          </Button>,
+        ]}
+      >
+        <div className="flex flex-col gap-4">
+          <p>
+            Current Role:{" "}
+            <Tag
+              color={selectedUserRole?.role === "Teacher" ? "blue" : "green"}
+            >
+              {selectedUserRole?.role}
+            </Tag>
+          </p>
+          <Select
+            value={selectedRole}
+            onChange={(value) => setSelectedRole(value)}
+            placeholder="Select new role"
+          >
+            {roleOptions.map((role) => (
+              <Option key={role} value={role}>
+                {role}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      </Modal>
+
+      {/* Status Change Modal */}
       <Modal
         title="Change User Status"
         visible={isStatusModalVisible}

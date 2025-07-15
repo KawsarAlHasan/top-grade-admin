@@ -291,8 +291,21 @@ function Assignments() {
                   {record.description || "No description provided"}
                 </p>
 
+                {console.log("record", record.bid_time_remaining)}
+
+                {record.bid_time_remaining == null ? (
+                  <div>Remaining Time: N/A</div>
+                ) : (
+                  <div>
+                    Remaining Time:{" "}
+                    {record.bid_time_remaining.minutes +
+                      ":" +
+                      record.bid_time_remaining.seconds}
+                  </div>
+                )}
+
                 {/* Show bid winner if exists */}
-                {record.winning_bidder &&
+                {record.winning_bidder > 0 &&
                   record.bid_winner &&
                   renderBidWinner(record.bid_winner)}
 

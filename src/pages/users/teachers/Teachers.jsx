@@ -37,11 +37,19 @@ function Teachers() {
   const [searchText, setSearchText] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  // Status change state
   const [selectedUser, setSelectedUser] = useState(null);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
 
+  // Role change state
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
+  const [isRolesModalVisible, setIsRolesModalVisible] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("");
+
   const statusOptions = ["Active", "Deactive", "Block", "Pending"];
+  const roleOptions = ["Teacher", "Student"]; // Available role options
 
   const handleStatusChange = async () => {
     if (!selectedUser || !selectedStatus) return;
@@ -61,11 +69,28 @@ function Teachers() {
     }
   };
 
+  const handleRoleChange = async () => {
+    if (!selectedUserRole || !selectedRole) return;
+
+    try {
+      setIsUpdatingStatus(true);
+      await API.put(`/user/role/${selectedUserRole.id}`, {
+        role: selectedRole,
+      });
+      message.success(`Teacher role updated to ${selectedRole}`);
+      refetch();
+      setIsRolesModalVisible(false);
+    } catch (error) {
+      message.error(error.response?.data?.message || "Failed to update role");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   const handleDelete = async (id) => {
     setDeleteLoading(true);
     try {
       await API.delete(`/user/delete/${id}`);
-      console.log(id, "id");
       message.success("Teacher deleted successfully");
       refetch();
     } catch (error) {
@@ -95,6 +120,12 @@ function Teachers() {
     setSelectedUser(user);
     setSelectedStatus(user.status);
     setIsStatusModalVisible(true);
+  };
+
+  const triggerRoleModal = (user) => {
+    setSelectedUserRole(user);
+    setSelectedRole(user.role);
+    setIsRolesModalVisible(true);
   };
 
   const filteredData = allUsers?.filter((user) => {
@@ -143,6 +174,23 @@ function Teachers() {
             </div>
           </div>
         </Space>
+      ),
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (role, record) => (
+        <div className="flex items-center">
+          <Tag color={role === "Teacher" ? "blue" : "green"}>
+            {role.toUpperCase()}
+          </Tag>
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => triggerRoleModal(record)}
+          />
+        </div>
       ),
     },
     {
@@ -232,6 +280,7 @@ function Teachers() {
         />
       </Spin>
 
+      {/* Status Change Modal */}
       <Modal
         title="Change Teacher Status"
         visible={isStatusModalVisible}
@@ -265,6 +314,48 @@ function Teachers() {
             {statusOptions.map((status) => (
               <Option key={status} value={status}>
                 {status}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      </Modal>
+
+      {/* Role Change Modal */}
+      <Modal
+        title="Change Teacher Role"
+        visible={isRolesModalVisible}
+        onCancel={() => setIsRolesModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsRolesModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={isUpdatingStatus}
+            onClick={handleRoleChange}
+          >
+            Update Role
+          </Button>,
+        ]}
+      >
+        <div className="flex flex-col gap-4">
+          <p>
+            Current Role:{" "}
+            <Tag
+              color={selectedUserRole?.role === "Teacher" ? "blue" : "green"}
+            >
+              {selectedUserRole?.role}
+            </Tag>
+          </p>
+          <Select
+            value={selectedRole}
+            onChange={(value) => setSelectedRole(value)}
+            placeholder="Select new role"
+          >
+            {roleOptions.map((role) => (
+              <Option key={role} value={role}>
+                {role}
               </Option>
             ))}
           </Select>

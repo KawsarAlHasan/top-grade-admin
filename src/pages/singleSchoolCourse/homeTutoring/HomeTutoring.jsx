@@ -3,6 +3,7 @@ import { Table, Button, Modal, message, Avatar } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { API } from "../../../api/api";
 import AddHomeTutoring from "./AddHomeTutoring";
+import ViewHomeTutor from "./ViewHomeTutor";
 
 const { confirm } = Modal;
 
@@ -89,20 +90,10 @@ function HomeTutoring({ homeTutoringData = [], refetch }) {
       render: (price) => `$${price || 0}`,
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs ${
-            status === "Active"
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {status || "Inactive"}
-        </span>
-      ),
+      title: "View",
+      dataIndex: "view",
+      key: "view",
+      render: (_, record) => <ViewHomeTutor homeTutoringSingleData={record} />,
     },
     {
       title: "Action",
