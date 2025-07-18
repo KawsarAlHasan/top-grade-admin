@@ -64,18 +64,6 @@ function Assignments() {
     );
   }
 
-  if (!allAssignments?.data?.length) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Empty
-          description={
-            <span className="text-gray-500">No assignments found</span>
-          }
-        />
-      </div>
-    );
-  }
-
   const columns = [
     {
       title: "Assignment",
@@ -303,8 +291,6 @@ function Assignments() {
                 <p className="text-gray-700 mb-4">
                   {record.description || "No description provided"}
                 </p>
-
-                {console.log("record", record.bid_time_remaining)}
 
                 {record.bid_time_remaining == null ? (
                   <div>Remaining Time: N/A</div>
