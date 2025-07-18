@@ -177,6 +177,11 @@ function Teachers() {
       ),
     },
     {
+      title: "Net Income",
+      dataIndex: "total_net_payment",
+      key: "total_net_payment",
+    },
+    {
       title: "Role",
       dataIndex: "role",
       key: "role",

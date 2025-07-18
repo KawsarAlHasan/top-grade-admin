@@ -41,6 +41,7 @@ import {
 } from "@ant-design/icons";
 
 import { useTeacherWithDetails } from "../../../api/api";
+import ResetEarnings from "./ResetEarnings";
 
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
@@ -83,11 +84,7 @@ function TeacherDetails() {
   }
 
   const teacher = teacherDetails?.data?.user;
-  const totalIncome = teacherDetails?.data?.totalIncome || {
-    total_net_payment: 0,
-    total_tax: 0,
-    total_total_amount: 0,
-  };
+
   const homeTutoring = teacherDetails?.data?.homeTutoring || [];
   const courseDetails = teacherDetails?.data?.courseDetails || [];
   const assignments = teacherDetails?.data?.assignments || [];
@@ -126,7 +123,7 @@ function TeacherDetails() {
           <div className="flex-shrink-0">
             <Avatar
               size={150}
-              src={teacher.profile_pic}
+              src={teacher?.profile_pic}
               icon={<UserOutlined />}
               className="border-2 border-blue-100"
             />
@@ -135,76 +132,78 @@ function TeacherDetails() {
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold text-gray-800">
-                  {teacher.first_name} {teacher.last_name}
+                  {teacher?.first_name} {teacher?.last_name}
                 </h1>
-                <p className="text-blue-600 mb-2">{teacher.role}</p>
+                <p className="text-blue-600 mb-2">{teacher?.role}</p>
               </div>
-              <Tag color={teacher.status === "Active" ? "green" : "red"}>
-                {teacher.status}
+              <Tag color={teacher?.status === "Active" ? "green" : "red"}>
+                {teacher?.status}
               </Tag>
             </div>
 
             <div className="flex items-center mb-4">
               <Rate
                 allowHalf
-                defaultValue={teacher.average_rating}
+                defaultValue={teacher?.average_rating}
                 disabled
                 className="mr-2"
               />
               <span className="text-gray-600">
-                ({teacher.total_rating} reviews)
+                ({teacher?.total_rating} reviews)
               </span>
             </div>
 
-            <p className="text-gray-700 mb-6">{teacher.description}</p>
+            <p className="text-gray-700 mb-6">{teacher?.description}</p>
 
             {/* Income Summary Section - Added this new section */}
             <div className="mb-6">
               <Divider orientation="left" orientationMargin={0}>
                 <h3 className="text-lg font-semibold">Income Summary</h3>
               </Divider>
-              <Row gutter={16} className="mb-4">
-                <Col span={8}>
-                  <Card>
-                    <Statistic
-                      title="Total Earnings"
-                      value={totalIncome.total_total_amount.toFixed(2)}
-                      prefix={<MoneyCollectOutlined />}
-                      valueStyle={{ color: "#52c41a" }}
-                      suffix="$"
-                    />
-                  </Card>
-                </Col>
-                <Col span={8}>
-                  <Card>
-                    <Statistic
-                      title="Net Payment"
-                      value={totalIncome.total_net_payment.toFixed(2)}
-                      prefix={<PieChartOutlined />}
-                      valueStyle={{ color: "#1890ff" }}
-                      suffix="$"
-                    />
-                  </Card>
-                </Col>
-                <Col span={8}>
-                  <Card>
-                    <Statistic
-                      title="Total Tax"
-                      value={totalIncome.total_tax.toFixed(2)}
-                      prefix={<PercentageOutlined />}
-                      valueStyle={{ color: "#faad14" }}
-                      suffix="$"
-                    />
-                  </Card>
-                </Col>
-              </Row>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <Card>
+                  <Statistic
+                    title="Total Earnings"
+                    value={teacher?.total_total_amount.toFixed(2)}
+                    prefix={<MoneyCollectOutlined />}
+                    valueStyle={{ color: "#52c41a" }}
+                    suffix="$"
+                  />
+                </Card>
+
+                <Card>
+                  <Statistic
+                    title="Net Payment"
+                    value={teacher?.total_net_payment.toFixed(2)}
+                    prefix={<PieChartOutlined />}
+                    valueStyle={{ color: "#1890ff" }}
+                    suffix="$"
+                  />
+                </Card>
+
+                <Card>
+                  <Statistic
+                    title="Total Tax"
+                    value={teacher?.total_tax.toFixed(2)}
+                    prefix={<PercentageOutlined />}
+                    valueStyle={{ color: "#faad14" }}
+                    suffix="$"
+                  />
+                </Card>
+
+                <div className="flex items-center">
+                  <div className="w-full">
+                    <ResetEarnings teacher={teacher} refetch={refetch} />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <Row gutter={16} className="mb-4">
               <Col span={12}>
                 <Statistic
                   title="Hourly Rate"
-                  value={teacher.price_per_hour}
+                  value={teacher?.price_per_hour}
                   prefix={<DollarOutlined />}
                   suffix="/hr"
                 />
@@ -221,20 +220,20 @@ function TeacherDetails() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex items-center">
                 <MailOutlined className="text-blue-500 mr-2" />
-                <span className="text-gray-600">{teacher.email}</span>
+                <span className="text-gray-600">{teacher?.email}</span>
               </div>
               <div className="flex items-center">
                 <PhoneOutlined className="text-blue-500 mr-2" />
-                <span className="text-gray-600">{teacher.phone}</span>
+                <span className="text-gray-600">{teacher?.phone}</span>
               </div>
               <div className="flex items-center">
                 <GlobalOutlined className="text-blue-500 mr-2" />
-                <span className="text-gray-600">{teacher.country}</span>
+                <span className="text-gray-600">{teacher?.country}</span>
               </div>
               <div className="flex items-center">
                 <IdcardOutlined className="text-blue-500 mr-2" />
                 <span className="text-gray-600">
-                  UID: {teacher.uid || "N/A"}
+                  UID: {teacher?.uid || "N/A"}
                 </span>
               </div>
             </div>
@@ -243,7 +242,7 @@ function TeacherDetails() {
       </div>
 
       {/* Video Introduction */}
-      {teacher.intro_video && (
+      {teacher?.intro_video && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
             Introduction Video
@@ -252,8 +251,8 @@ function TeacherDetails() {
             <video
               controls
               className="w-full h-auto rounded-lg"
-              src={teacher.intro_video}
-              poster={teacher.profile_pic}
+              src={teacher?.intro_video}
+              poster={teacher?.profile_pic}
             />
           </div>
         </div>
@@ -301,9 +300,9 @@ function TeacherDetails() {
                               <Tag icon={<DollarOutlined />} color="green">
                                 $
                                 {calculateTotalWithTax(
-                                  assignment.lowest_bid,
-                                  assignment.tax
-                                ).toFixed(2)}
+                                  assignment?.lowest_bid,
+                                  assignment?.tax
+                                )?.toFixed(2)}
                               </Tag>
                             )}
                           </Space>

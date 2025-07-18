@@ -26,6 +26,7 @@ import {
   DollarOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
+import AddAdminAssignment from "./AddAdminAssignment";
 
 function Assignments() {
   const { allAssignments, isLoading, isError, error, refetch } =
@@ -143,6 +144,20 @@ function Assignments() {
               icon: <CheckCircleOutlined />,
               color: "success",
               text: "Delivered",
+            };
+            break;
+          case "Completed":
+            statusProps = {
+              icon: <CheckCircleOutlined />,
+              color: "success",
+              text: "Completed",
+            };
+            break;
+          case "Cancelled":
+            statusProps = {
+              icon: <CloseCircleOutlined />,
+              color: "error",
+              text: "Cancelled",
             };
             break;
           default:
@@ -267,9 +282,7 @@ function Assignments() {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Assignments</h1>
         <div className="flex space-x-2">
-          <Button icon={<SyncOutlined />} onClick={refetch}>
-            Refresh
-          </Button>
+          <AddAdminAssignment refetch={refetch} />
         </div>
       </div>
 
