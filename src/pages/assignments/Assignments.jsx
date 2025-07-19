@@ -27,6 +27,7 @@ import {
   TrophyOutlined,
 } from "@ant-design/icons";
 import AddAdminAssignment from "./AddAdminAssignment";
+import AssignedTeacher from "./AssignedTeacher";
 
 function Assignments() {
   const { allAssignments, isLoading, isError, error, refetch } =
@@ -198,6 +199,15 @@ function Assignments() {
           ) : (
             <Tag>No Bids</Tag>
           )}
+        </div>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <div className="flex items-center">
+          <AssignedTeacher assignmentData={record} refetch={refetch} />
         </div>
       ),
     },
