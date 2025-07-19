@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { API, useAllCourses, useAllUsers } from "../../api/api";
+import React, { useState, useEffect } from "react";
+import { API, useAllCourses, useAllUsers, useServicesFee } from "../../api/api";
 import {
   Form,
   Input,
@@ -24,20 +24,27 @@ function AddAdminAssignment({ refetch }) {
   const { allCourses, isLoading: courseLoading } = useAllCourses();
   const { allUsers, isLoading: userLoading } = useAllUsers();
 
+  const {
+    singleServices,
+    isLoading: servicesLoading,
+    isError,
+    error,
+  } = useServicesFee("university");
+
+  const taxPercentage = singleServices?.percentage || 0;
+
   const onFinish = async (values) => {
     try {
       setLoading(true);
 
       const formData = new FormData();
 
-      // Append all form values
       Object.keys(values).forEach((key) => {
         if (key !== "file" && key !== "submit_file" && values[key]) {
           formData.append(key, values[key]);
         }
       });
 
-      // Append files if they exist
       if (values.file) {
         values.file.forEach((file) => {
           formData.append("file", file.originFileObj);
@@ -50,7 +57,7 @@ function AddAdminAssignment({ refetch }) {
         });
       }
 
-      const response = await API.post("/admin-assignment/create", formData, {
+      await API.post("/admin-assignment/create", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -79,6 +86,25 @@ function AddAdminAssignment({ refetch }) {
 
   const teachers = allUsers?.filter((user) => user.role === "Teacher");
   const students = allUsers?.filter((user) => user.role === "Student");
+
+  // Auto-calculate tax and net_payment when lowest_bid changes
+  const handleBidChange = (e) => {
+    const bid = parseFloat(e.target.value);
+    if (!isNaN(bid)) {
+      const tax = (bid * taxPercentage) / 100;
+      const netPayment = bid - tax;
+
+      form.setFieldsValue({
+        tax: tax.toFixed(2),
+        net_payment: netPayment.toFixed(2),
+      });
+    } else {
+      form.setFieldsValue({
+        tax: "",
+        net_payment: "",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -114,8 +140,7 @@ function AddAdminAssignment({ refetch }) {
                 placeholder="Select a course"
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
+                  option.children.toLowerCase().includes(input.toLowerCase())
                 }
                 loading={courseLoading}
               >
@@ -133,8 +158,7 @@ function AddAdminAssignment({ refetch }) {
                 placeholder="Select a student"
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
+                  option.children.toLowerCase().includes(input.toLowerCase())
                 }
                 loading={userLoading}
               >
@@ -211,8 +235,7 @@ function AddAdminAssignment({ refetch }) {
                 placeholder="Select a teacher"
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
+                  option.children.toLowerCase().includes(input.toLowerCase())
                 }
                 loading={userLoading}
               >
@@ -226,15 +249,23 @@ function AddAdminAssignment({ refetch }) {
             </Form.Item>
 
             <Form.Item label="Price" name="lowest_bid">
-              <Input type="number" placeholder="Enter lowest bid" />
+              <Input
+                type="number"
+                placeholder="Enter lowest bid"
+                onChange={handleBidChange}
+              />
             </Form.Item>
 
             <Form.Item label="Tax" name="tax">
-              <Input type="number" placeholder="Enter tax" />
+              <Input type="number" placeholder="Auto calculated tax" readOnly />
             </Form.Item>
 
             <Form.Item label="Net Payment" name="net_payment">
-              <Input type="number" placeholder="Enter net payment" />
+              <Input
+                type="number"
+                placeholder="Auto calculated net payment"
+                readOnly
+              />
             </Form.Item>
           </div>
 

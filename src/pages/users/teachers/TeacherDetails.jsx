@@ -111,10 +111,6 @@ function TeacherDetails() {
     }
   };
 
-  const calculateTotalWithTax = (amount, tax) => {
-    return amount + amount * (tax / 100);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Teacher Profile Section */}
@@ -298,11 +294,7 @@ function TeacherDetails() {
                             </Tag>
                             {assignment.lowest_bid && (
                               <Tag icon={<DollarOutlined />} color="green">
-                                $
-                                {calculateTotalWithTax(
-                                  assignment?.lowest_bid,
-                                  assignment?.tax
-                                )?.toFixed(2)}
+                                $ {assignment.lowest_bid?.toFixed(2)}
                               </Tag>
                             )}
                           </Space>
@@ -346,11 +338,7 @@ function TeacherDetails() {
                               <PercentageOutlined /> Tax: {assignment.tax}%
                             </div>
                             <div>
-                              Total: $
-                              {calculateTotalWithTax(
-                                assignment.lowest_bid,
-                                assignment.tax
-                              ).toFixed(2)}
+                              Total: $ {assignment.lowest_bid?.toFixed(2)}
                             </div>
                             <div>
                               Net Pament: ${assignment.net_payment || 0}
