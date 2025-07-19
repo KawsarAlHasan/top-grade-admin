@@ -306,11 +306,18 @@ function TeacherDetails() {
                         <Descriptions.Item label="Course Type">
                           {assignment.courses_type}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Course ID">
-                          {assignment.courses_id}
+                        <Descriptions.Item label="Course Title">
+                          {assignment?.course_name}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Student ID">
-                          {assignment.student_id}
+                        <Descriptions.Item label="Student">
+                          <div className="flex items-center">
+                            <Avatar
+                              src={assignment?.student_profile_pic}
+                              className="mr-2"
+                            />
+                            {assignment?.student_first_name}{" "}
+                            {assignment?.student_last_name}
+                          </div>
                         </Descriptions.Item>
                         <Descriptions.Item label="Description">
                           {assignment.description || "No description provided"}
