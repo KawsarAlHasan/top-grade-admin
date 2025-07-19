@@ -40,10 +40,17 @@ function AddAdminAssignment({ refetch }) {
       const formData = new FormData();
 
       Object.keys(values).forEach((key) => {
-        if (key !== "file" && key !== "submit_file" && values[key]) {
+        if (
+          key !== "file" &&
+          key !== "status" &&
+          key !== "submit_file" &&
+          values[key]
+        ) {
           formData.append(key, values[key]);
         }
       });
+
+      formData.append("status", values.status || "Completed");
 
       if (values.file) {
         values.file.forEach((file) => {
