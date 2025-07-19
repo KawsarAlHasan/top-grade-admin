@@ -78,7 +78,7 @@ function Assignments() {
           />
           <div>
             <p className="font-medium text-gray-900 mb-1">{courses?.title}</p>
-            <p className="text-sm text-gray-500">{record.courses_type}</p>
+            <p className="text-sm text-gray-500">{record?.courses_type}</p>
           </div>
         </div>
       ),
@@ -235,8 +235,41 @@ function Assignments() {
     </div>
   );
 
+  const renderFileDownloads = (record) => (
+    <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+      <div className="font-medium mb-2">Assignment Files</div>
+      <Space>
+        {record.submit_file && (
+          <Tooltip title="Download Submitted Solution">
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => window.open(record.submit_file, "_blank")}
+            >
+              Solution File
+            </Button>
+          </Tooltip>
+        )}
+        {record.file && (
+          <Tooltip title="Download Original Assignment">
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => window.open(record.file, "_blank")}
+            >
+              Assignment File
+            </Button>
+          </Tooltip>
+        )}
+        {!record.submit_file && !record.file && (
+          <span className="text-gray-500">No files available</span>
+        )}
+      </Space>
+    </div>
+  );
+
   const renderRecentBids = (bids) => {
-    const lastFiveBids = bids.slice(-5).reverse(); // Get last 5 bids and reverse to show latest first
+    const lastFiveBids = bids.slice(-5).reverse();
     return (
       <div className="mt-4">
         <h4 className="font-medium mb-3">Recent Bids ({bids.length} total)</h4>
@@ -307,6 +340,9 @@ function Assignments() {
                 {record.winning_bidder > 0 &&
                   record.bid_winner &&
                   renderBidWinner(record.bid_winner)}
+
+                {/* Add file downloads section */}
+                {renderFileDownloads(record)}
 
                 {/* Show recent bids if no winner but bids exist */}
                 {!record.winning_bidder &&

@@ -18,6 +18,7 @@ import {
   Badge,
   Collapse,
   Space,
+  Tooltip,
 } from "antd";
 import {
   UserOutlined,
@@ -38,6 +39,7 @@ import {
   InfoCircleOutlined,
   PieChartOutlined,
   MoneyCollectOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 
 import { useTeacherWithDetails } from "../../../api/api";
@@ -89,6 +91,8 @@ function TeacherDetails() {
   const courseDetails = teacherDetails?.data?.courseDetails || [];
   const assignments = teacherDetails?.data?.assignments || [];
 
+  console.log("assignments:", assignments);
+
   // Group assignments by status
   const groupedAssignments = assignments.reduce((acc, assignment) => {
     if (!acc[assignment.status]) {
@@ -110,6 +114,43 @@ function TeacherDetails() {
         return "gray";
     }
   };
+
+  const renderFileDownloads = (assignment) => (
+    <div className="mt-4">
+      <Divider orientation="left" orientationMargin={0}>
+        <h4 className="text-sm font-medium">Assignment Files</h4>
+      </Divider>
+      <Space>
+        {assignment.file && (
+          <Tooltip title="Download Assignment File">
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => window.open(assignment.file, "_blank")}
+              size="small"
+            >
+              Assignment File
+            </Button>
+          </Tooltip>
+        )}
+        {assignment.submit_file && (
+          <Tooltip title="Download Submitted Solution">
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={() => window.open(assignment.submit_file, "_blank")}
+              size="small"
+            >
+              Solution File
+            </Button>
+          </Tooltip>
+        )}
+        {!assignment.file && !assignment.submit_file && (
+          <span className="text-gray-500">No files available</span>
+        )}
+      </Space>
+    </div>
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -362,6 +403,9 @@ function TeacherDetails() {
                           )}
                         </Descriptions.Item>
                       </Descriptions>
+
+                      {/* Add file downloads section here */}
+                      {renderFileDownloads(assignment)}
                     </Panel>
                   ))}
                 </Collapse>
